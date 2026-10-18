@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.InvoicePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="فواتير المبيعات"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F1F2F7">
+
+    <ContentPage.Resources>
+        <Style x:Key="FieldCaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#555B72" />
+        </Style>
+        <Style x:Key="FieldEntryStyle" TargetType="Entry">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#34445C" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="HeightRequest" Value="40" />
+            <Setter Property="HorizontalTextAlignment" Value="End" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid
+            Grid.Row="0"
+            Padding="16,12"
+            BackgroundColor="#E9EAF0"
+            ColumnDefinitions="*,Auto">
+            <Label
+                Text="فواتير المبيعات"
+                FontSize="19"
+                FontAttributes="Bold"
+                TextColor="#48546B"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                WidthRequest="30"
+                HeightRequest="30"
+                BackgroundColor="#F4A12C"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 5">
+                <Label
+                    Text="i"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="12,12,12,24" Spacing="12">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Label
+                        Text="فاتورة جديدة"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        TextColor="#173B70"
+                        VerticalOptions="Center" />
+                    <Button
+                        Grid.Column="1"
+                        Text="عرض الكل"
+                        HeightRequest="38"
+                        Padding="14,6"
+                        CornerRadius="8"
+                        BackgroundColor="#36BFC5"
+                        TextColor="White"
+                        FontSize="12" />
+                </Grid>
+
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="12">
+                        <Label
+                            Text="بيانات الفاتورة"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#34394F" />
+
+                        <Grid
+                            ColumnDefinitions="*,*"
+                            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                            ColumnSpacing="10"
+                            RowSpacing="10">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                                <Label Text="المخزن" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="Main Store" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                                <Label Text="رقم الفاتورة" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Placeholder="تلقائي" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                                <Label Text="تاريخ الفاتورة" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#E1FFE4" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="2026-10-15" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                                <Label Text="نوع الفاتورة" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="فاتورة" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                                <Label Text="العميل" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="حسن عبدالله" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                <Label Text="نوع السعر" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="سعر الجمهور" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                                <Label Text="المندوب" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="-- اختر --" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                                <Label Text="السائق" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="-- اختر --" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="0" Spacing="4">
+                                <Label Text="اعتماد القيد المحاسبي" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="معتمد" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="1" Spacing="4">
+                                <Label Text="اعتماد حركة المخزن" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="معتمد" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label
+                            Text="بيان الفاتورة"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="#34394F" />
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="6">
+                            <Label
+                                Text="Barcode"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="#555B72"
+                                VerticalOptions="Center" />
+                            <Border
+                                Grid.Column="1"
+                                Padding="8,0"
+                                BackgroundColor="#F2FFD8"
+                                Stroke="#D5D4EC"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 5">
+                                <Entry
+                                    x:Name="InvoiceBarcodeEntry"
+                                    Placeholder="امسح الباركود أو أدخل كود الصنف"
+                                    Style="{StaticResource FieldEntryStyle}" />
+                            </Border>
+                            <Button
+                                Grid.Column="2"
+                                Text="مسح"
+                                HeightRequest="40"
+                                Padding="10,4"
+                                CornerRadius="6"
+                                BackgroundColor="#36BFC5"
+                                TextColor="White"
+                                Clicked="OnScanBarcodeClicked" />
+                            <Button
+                                Grid.Column="3"
+                                Text="إضافة"
+                                HeightRequest="40"
+                                Padding="10,4"
+                                CornerRadius="6"
+                                BackgroundColor="#25A36F"
+                                TextColor="White"
+                                Clicked="OnAddBarcodeClicked" />
+                        </Grid>
+
+                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
+                            <Border
+                                WidthRequest="1040"
+                                BackgroundColor="White"
+                                Stroke="#8582D5"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 6">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid
+                                        Padding="6"
+                                        ColumnDefinitions="45,110,145,75,75,85,95,80,90,140"
+                                        BackgroundColor="#E9E9F0">
+                                        <Label Grid.Column="0" Text="م" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="1" Text="كود الصنف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="2" Text="اسم الصنف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="3" Text="الوحدة" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="4" Text="الكمية" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="5" Text="السعر" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="6" Text="الإجمالي" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="7" Text="الخصم" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="8" Text="الصافي" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                        <Label Grid.Column="9" Text="البيان" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                                    </Grid>
+
+                                    <Label
+                                        x:Name="EmptyItemsLabel"
+                                        Text="امسح الباركود لإضافة صنف للفاتورة"
+                                        Padding="12"
+                                        FontSize="12"
+                                        TextColor="#8995A7"
+                                        HorizontalTextAlignment="Center" />
+                                    <VerticalStackLayout
+                                        x:Name="InvoiceItemsContainer"
+                                        Spacing="0" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </ScrollView>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Border
+                        Grid.Column="1"
+                        Padding="14"
+                        BackgroundColor="White"
+                        Stroke="#8582D5"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="بيانات السداد" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="3">
+                                    <Label Text="طريقة الدفع" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Text="فيزا" Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="3">
+                                    <Label Text="رقم الحساب" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Text="102000200001" Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="3">
+                                    <Label Text="اسم الحساب" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Placeholder="-- اختر الحساب --" Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="3">
+                                    <Label Text="المدفوع" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="3">
+                                    <Label Text="تاريخ الدفع" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Text="2026-10-15" Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="3">
+                                    <Label Text="ملاحظات" Style="{StaticResource FieldCaptionStyle}" />
+                                    <Border Padding="6,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry Style="{StaticResource FieldEntryStyle}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border
+                        Grid.Column="0"
+                        Padding="14"
+                        BackgroundColor="White"
+                        Stroke="#8582D5"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10">
+                        <VerticalStackLayout Spacing="10">
+                            <Label Text="ملخص الفاتورة" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                <Label Grid.Row="0" Text="إجمالي الفاتورة" FontSize="13" TextColor="#48546B" />
+                                <Label x:Name="InvoiceTotalLabel" Grid.Row="0" Grid.Column="1" Text="0.00" FontSize="13" FontAttributes="Bold" TextColor="#34394F" />
+                                <Label Grid.Row="1" Text="المدفوع" FontSize="13" TextColor="#48546B" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="0.00" FontSize="13" FontAttributes="Bold" TextColor="#34394F" />
+                                <Label Grid.Row="2" Text="المتبقي" FontSize="13" FontAttributes="Bold" TextColor="#173B70" />
+                                <Label x:Name="InvoiceRemainingLabel" Grid.Row="2" Grid.Column="1" Text="0.00" FontSize="13" FontAttributes="Bold" TextColor="#173B70" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="الخصومات والضرائب والمصاريف" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="8">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="3">
+                                <Label Text="إجمالي خصم الأصناف" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="3">
+                                <Label Text="إجمالي الخصم الإضافي" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="3">
+                                <Label Text="عمولة المندوب" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="3">
+                                <Label Text="إجمالي التكلفة" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="3">
+                                <Label Text="قيمة خصم الفاتورة" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0.00" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="3">
+                                <Label Text="نسبة الخصم %" Style="{StaticResource FieldCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry Text="0" Style="{StaticResource FieldEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="3">
+                                <Label Text="ضريبة القيمة المضافة" Style="{StaticResource FieldCaptionStyle}" />
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <CheckBox IsChecked="True" Color="#25A36F" />
+                                    <Label Text="14%" FontSize="13" TextColor="#48546B" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="3">
+                                <Label Text="ضريبة الخدمة" Style="{StaticResource FieldCaptionStyle}" />
+                                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                    <CheckBox IsChecked="True" Color="#25A36F" />
+                                    <Label Text="10%" FontSize="13" TextColor="#48546B" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Button
+                        Text="حفظ"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#25A36F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="حفظ وتعليق"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#E99A2D"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Clicked="OnSaveClicked" />
+                    <Button
+                        Grid.Column="2"
+                        Text="إلغاء"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#D9534F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnCancelClicked" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

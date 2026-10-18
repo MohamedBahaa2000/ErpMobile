@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.DashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Dashboard"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="22,28" Spacing="22">
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                    <Label
+                        Text="Welcome back"
+                        FontSize="14"
+                        TextColor="#748198" />
+                    <Label
+                        Text="Admin"
+                        FontSize="27"
+                        FontAttributes="Bold"
+                        TextColor="#173B70" />
+                </VerticalStackLayout>
+
+                <Border
+                    Grid.Column="1"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    BackgroundColor="White"
+                    Stroke="#E5EAF2"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16"
+                    VerticalOptions="Center">
+                    <Label
+                        Text="ERP"
+                        FontSize="13"
+                        FontAttributes="Bold"
+                        TextColor="#173B70"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <Border
+                Padding="20"
+                BackgroundColor="#173B70"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 22">
+                <VerticalStackLayout Spacing="8">
+                    <Label
+                        Text="Today's sales"
+                        FontSize="14"
+                        TextColor="#D5E1F2" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label
+                            Text="$12,450"
+                            FontSize="30"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                        <Border
+                            Grid.Column="1"
+                            Padding="10,6"
+                            BackgroundColor="#2A538A"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 12"
+                            VerticalOptions="Center">
+                            <Label
+                                Text="↑ 12.8%"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="#D8F5E5" />
+                        </Border>
+                    </Grid>
+                    <Label
+                        Text="Compared with last month"
+                        FontSize="12"
+                        TextColor="#D5E1F2" />
+                </VerticalStackLayout>
+            </Border>
+
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="Overview"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+
+                <Grid
+                    ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="12"
+                    RowSpacing="12">
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Orders" FontSize="13" TextColor="#748198" />
+                            <Label Text="128" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="18 pending" FontSize="12" TextColor="#D98A16" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Padding="16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Customers" FontSize="13" TextColor="#748198" />
+                            <Label Text="56" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="Active customers" FontSize="12" TextColor="#748198" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Padding="16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Products" FontSize="13" TextColor="#748198" />
+                            <Label Text="342" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="In inventory" FontSize="12" TextColor="#748198" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Outstanding" FontSize="13" TextColor="#748198" />
+                            <Label Text="12" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="Invoices to collect" FontSize="12" TextColor="#748198" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="Quick actions"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+                <Grid
+                    ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="12"
+                    RowSpacing="10">
+                    <Button
+                        Text="New invoice"
+                        HeightRequest="50"
+                        Padding="10,12"
+                        CornerRadius="14"
+                        BackgroundColor="#173B70"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnNewInvoiceClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="Add customer"
+                        HeightRequest="50"
+                        Padding="10,12"
+                        CornerRadius="14"
+                        BackgroundColor="White"
+                        BorderColor="#DCE3ED"
+                        BorderWidth="1"
+                        TextColor="#173B70"
+                        FontAttributes="Bold" />
+                    <Button
+                        Grid.Row="1"
+                        Text="Add product"
+                        HeightRequest="50"
+                        Padding="10,12"
+                        CornerRadius="14"
+                        BackgroundColor="White"
+                        BorderColor="#DCE3ED"
+                        BorderWidth="1"
+                        TextColor="#173B70"
+                        FontAttributes="Bold"
+                        Clicked="OnAddProductClicked" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="Recent orders"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+
+                <Border
+                    Padding="16,4"
+                    BackgroundColor="White"
+                    Stroke="#E5EAF2"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Invoice #INV-1024" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
+                                <Label Text="Today · 10:45 AM" FontSize="12" TextColor="#8995A7" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
+                                <Label Text="$2,450" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" HorizontalTextAlignment="End" />
+                                <Label Text="Paid" FontSize="12" TextColor="#248A58" HorizontalTextAlignment="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" BackgroundColor="#EEF1F6" />
+
+                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Invoice #INV-1023" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
+                                <Label Text="Today · 09:20 AM" FontSize="12" TextColor="#8995A7" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
+                                <Label Text="$860" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" HorizontalTextAlignment="End" />
+                                <Label Text="Pending" FontSize="12" TextColor="#D98A16" HorizontalTextAlignment="End" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

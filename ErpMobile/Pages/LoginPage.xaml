@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <ScrollView>
+        <Grid Padding="28,40"
+              RowDefinitions="Auto,*,Auto"
+              MinimumHeightRequest="650">
+
+            <VerticalStackLayout
+                Grid.Row="0"
+                Spacing="12"
+                HorizontalOptions="Center">
+
+                <Border
+                    WidthRequest="76"
+                    HeightRequest="76"
+                    StrokeThickness="0"
+                    BackgroundColor="#173B70"
+                    StrokeShape="RoundRectangle 22">
+
+                    <Label
+                        Text="E"
+                        FontSize="42"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Border>
+
+                <Label
+                    Text="Select ERP MOBILE"
+                    FontSize="25"
+                    FontAttributes="Bold"
+                    TextColor="#173B70"
+                    HorizontalTextAlignment="Center"/>
+
+                <Label
+                    Text="Your business, at your fingertips"
+                    FontSize="13"
+                    TextColor="#748198"
+                    HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+            <Border
+                Grid.Row="1"
+                Margin="0,35,0,25"
+                Padding="24"
+                BackgroundColor="White"
+                Stroke="#E5EAF2"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                VerticalOptions="Center">
+
+                <VerticalStackLayout Spacing="18">
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label
+                            Text="Welcome Back"
+                            FontSize="26"
+                            FontAttributes="Bold"
+                            TextColor="#192D4A"/>
+
+                        <Label
+                            Text="Sign in to continue"
+                            FontSize="14"
+                            TextColor="#7B8799"/>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            Text="Username"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="#34445C"/>
+
+                        <Border
+                            Padding="12,2"
+                            Stroke="#DCE3ED"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+
+                            <Entry
+                                x:Name="UsernameEntry"
+                                Placeholder="Enter your username"
+                                TextColor="#192D4A"
+                                PlaceholderColor="#A0AABD"
+                                ClearButtonVisibility="WhileEditing"
+                                HeightRequest="48"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            Text="Password"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="#34445C"/>
+
+                        <Border
+                            Padding="12,2"
+                            Stroke="#DCE3ED"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+
+                            <Entry
+                                x:Name="PasswordEntry"
+                                Placeholder="Enter your password"
+                                IsPassword="True"
+                                TextColor="#192D4A"
+                                PlaceholderColor="#A0AABD"
+                                HeightRequest="48"/>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <Label
+                        x:Name="ErrorLabel"
+                        Text=""
+                        TextColor="#D93636"
+                        FontSize="12"
+                        IsVisible="False"/>
+
+                    <Button
+                        x:Name="LoginButton"
+                        Text="Sign In"
+                        HeightRequest="54"
+                        CornerRadius="14"
+                        BackgroundColor="#173B70"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Clicked="OnLoginClicked"/>
+
+                    <Label
+                        Text="Secure access to your business"
+                        FontSize="12"
+                        TextColor="#8995A7"
+                        HorizontalTextAlignment="Center"/>
+
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
+                Grid.Row="2"
+                Text="© ERP Mobile | Business Management"
+                FontSize="11"
+                TextColor="#929DB0"
+                HorizontalTextAlignment="Center"
+                VerticalOptions="End"/>
+
+        </Grid>
+    </ScrollView>
+</ContentPage>

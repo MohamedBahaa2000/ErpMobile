@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.ProductPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="إضافة منتج"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,28" Spacing="18">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="المنتجات" FontSize="14" TextColor="#748198" />
+                    <Label Text="إضافة منتج جديد" FontSize="25" FontAttributes="Bold" TextColor="#173B70" />
+                </VerticalStackLayout>
+                <Button
+                    Grid.Column="1"
+                    Text="رجوع"
+                    HeightRequest="42"
+                    Padding="14,6"
+                    CornerRadius="12"
+                    BackgroundColor="White"
+                    TextColor="#173B70"
+                    Clicked="OnCancelClicked" />
+            </Grid>
+
+            <Border
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#E5EAF2"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="14">
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="اسم المنتج" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
+                        <Entry
+                            x:Name="NameEntry"
+                            Placeholder="مثال: منتج جديد"
+                            HeightRequest="48"
+                            BackgroundColor="#F7F8FB"
+                            TextColor="#192D4A" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="الباركود" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry
+                                x:Name="BarcodeEntry"
+                                Placeholder="حدد الحقل ثم امسح بجهاز USB أو أدخله يدوياً"
+                                HeightRequest="48"
+                                BackgroundColor="#F7F8FB"
+                                TextColor="#192D4A" />
+                            <Button
+                                Grid.Column="1"
+                                Text="مسح بالكاميرا"
+                                HeightRequest="48"
+                                Padding="12,8"
+                                CornerRadius="12"
+                                BackgroundColor="#36BFC5"
+                                TextColor="White"
+                                FontSize="12"
+                                IsVisible="{OnPlatform WinUI=False, Default=True}"
+                                Clicked="OnScanBarcodeClicked" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="سعر البيع" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
+                        <Entry
+                            x:Name="PriceEntry"
+                            Placeholder="0.00"
+                            Keyboard="Numeric"
+                            HeightRequest="48"
+                            BackgroundColor="#F7F8FB"
+                            TextColor="#192D4A" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label Text="وحدة القياس" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
+                        <Entry
+                            x:Name="UnitEntry"
+                            Text="قطعة"
+                            HeightRequest="48"
+                            BackgroundColor="#F7F8FB"
+                            TextColor="#192D4A" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Text="حفظ المنتج"
+                        HeightRequest="52"
+                        CornerRadius="14"
+                        BackgroundColor="#173B70"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
+                Text="سيتم حفظ المنتجات محلياً على هذا الجهاز، ويمكن استخدامها دون إنترنت."
+                FontSize="12"
+                TextColor="#748198"
+                HorizontalTextAlignment="Center" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,140 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net10.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>ErpMobile</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- Enable XAML source generation for faster build times and improved performance.
+		     This generates C# code from XAML at compile time instead of runtime inflation.
+		     To disable, remove this line.
+		     For individual files, you can override by setting Inflator metadata:
+		       <MauiXaml Update="MyPage.xaml" Inflator="Default" /> (reverts to defaults: Runtime for Debug, XamlC for Release)
+		       <MauiXaml Update="MyPage.xaml" Inflator="Runtime" /> (force runtime inflation) -->
+		<MauiXamlInflator>SourceGen</MauiXamlInflator>
+
+		<!-- Display name -->
+		<ApplicationTitle>ErpMobile</ApplicationTitle>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.companyname.erpmobile</ApplicationId>
+
+		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+		<AndroidMinSdkVersion>23</AndroidMinSdkVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net10.0-android|AnyCPU'">
+	  <AndroidUseAapt2>True</AndroidUseAapt2>
+	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
+	  <AndroidSigningKeyStore>123456</AndroidSigningKeyStore>
+	  <AndroidKeyStore>True</AndroidKeyStore>
+	  <AndroidSigningStorePass>123456</AndroidSigningStorePass>
+	  <AndroidPackageFormat>aab</AndroidPackageFormat>
+	  <AndroidUseAapt2>True</AndroidUseAapt2>
+	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon -->
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
+
+		<!-- Splash Screen -->
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		
+		<!-- Custom Fonts -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BarcodeScanning.Native.Maui" Version="3.1.0" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.5.1" Condition="'$(TargetFramework)' == 'net10.0-android'" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.5.1" Condition="'$(TargetFramework)' == 'net10.0-ios'" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.5.1" Condition="'$(TargetFramework)' == 'net10.0-maccatalyst'" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.5.0" Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'" />
+		<!-- Pin transitive ZXing.Net.Maui to a safe version for the Windows target framework -->
+		<PackageReference Include="ZXing.Net.Maui" Version="0.5.0" Condition="'$(TargetFramework)' == 'net10.0-windows10.0.19041.0'" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.12-pre20260709125052" Condition="'$(TargetFramework)' == 'net10.0-android'" />
+		<!-- Add explicit, non-vulnerable e_sqlite3 package to mitigate known vulnerability in older versions -->
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Pages\LoginPage.xaml.cs">
+		<DependentUpon>LoginPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\DashboardPage.xaml.cs">
+		<DependentUpon>DashboardPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\InvoicePage.xaml.cs">
+		<DependentUpon>InvoicePage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\ProductPage.xaml.cs">
+		<DependentUpon>ProductPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Pages\BarcodeScannerPage.xaml.cs">
+		<DependentUpon>BarcodeScannerPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Pages\LoginPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\DashboardPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\InvoicePage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\ProductPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\BarcodeScannerPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
+</Project>
