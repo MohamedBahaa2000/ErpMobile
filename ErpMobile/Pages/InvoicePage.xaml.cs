@@ -26,7 +26,7 @@ public partial class InvoicePage : ContentPage
         }
         catch (UnauthorizedAccessException)
         {
-            await DisplayAlert("إذن الكاميرا", "اسمح للتطبيق باستخدام الكاميرا لمسح الباركود.", "موافق");
+            await DisplayAlertAsync("إذن الكاميرا", "اسمح للتطبيق باستخدام الكاميرا لمسح الباركود.", "موافق");
         }
     }
 
@@ -35,7 +35,7 @@ public partial class InvoicePage : ContentPage
         string barcode = InvoiceBarcodeEntry.Text?.Trim() ?? string.Empty;
         if (barcode.Length == 0)
         {
-            await DisplayAlert("الباركود مطلوب", "امسح الباركود أو أدخله أولاً.", "موافق");
+            await DisplayAlertAsync("الباركود مطلوب", "امسح الباركود أو أدخله أولاً.", "موافق");
             return;
         }
 
@@ -48,7 +48,7 @@ public partial class InvoicePage : ContentPage
         if (product is null)
         {
             InvoiceBarcodeEntry.Text = barcode;
-            await DisplayAlert("المنتج غير موجود", "أضف المنتج أولاً من لوحة التحكم ثم امسح الباركود مرة أخرى.", "موافق");
+            await DisplayAlertAsync("المنتج غير موجود", "أضف المنتج أولاً من لوحة التحكم ثم امسح الباركود مرة أخرى.", "موافق");
             return;
         }
 
@@ -112,7 +112,7 @@ public partial class InvoicePage : ContentPage
 
     private async void OnSaveClicked(object? sender, EventArgs e)
     {
-        await DisplayAlert(
+        await DisplayAlertAsync(
             "فواتير المبيعات",
             "هذه واجهة تجريبية؛ لم يتم ربط حفظ الفاتورة بقاعدة بيانات بعد.",
             "موافق");

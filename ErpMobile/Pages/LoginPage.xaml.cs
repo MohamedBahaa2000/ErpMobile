@@ -16,7 +16,7 @@ public partial class LoginPage : ContentPage
         if (string.IsNullOrWhiteSpace(username) ||
             string.IsNullOrWhiteSpace(password))
         {
-            ErrorLabel.Text = "Please enter username and password.";
+            ErrorLabel.Text = "من فضلك أدخل اسم المستخدم وكلمة المرور.";
             ErrorLabel.IsVisible = true;
             return;
         }
@@ -28,7 +28,7 @@ public partial class LoginPage : ContentPage
         }
         else
         {
-            ErrorLabel.Text = "Invalid username or password.";
+            ErrorLabel.Text = "اسم المستخدم أو كلمة المرور غير صحيحة.";
             ErrorLabel.IsVisible = true;
         }
     }
