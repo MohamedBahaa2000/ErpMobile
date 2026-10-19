@@ -1,6 +1,15 @@
 Add-Type -AssemblyName System.Drawing
 
-# ===================== أيقونة التطبيق (مربّعة: Select فوق ERP) =====================
+# ألوان الأزرق لشارة ERP (بتدرّج)
+function Get-PurpleBrush {
+    param($g, $rect)
+    return New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect,
+        [System.Drawing.Color]::FromArgb(255, 23, 59, 112),
+        [System.Drawing.Color]::FromArgb(255, 36, 88, 242),
+        [float](0))
+}
+
+# ===================== أيقونة التطبيق (خلفية بيضاء: Select أسود + ERP موف) =====================
 function New-ErpIcon {
     param([string]$Path, [int]$Size)
 
@@ -9,39 +18,33 @@ function New-ErpIcon {
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAlias
 
-    # خلفية متدرجة زي لوجو Select ERP
+    # خلفية بيضاء
     $rect = New-Object System.Drawing.Rectangle(0, 0, $Size, $Size)
-    $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect,
-        [System.Drawing.Color]::FromArgb(255, 40, 33, 232),
-        [System.Drawing.Color]::FromArgb(255, 55, 183, 234),
-        [float](45))
-    $g.FillRectangle($brush, $rect) | Out-Null
+    $g.FillRectangle([System.Drawing.Brushes]::White, $rect) | Out-Null
 
     $sf = New-Object System.Drawing.StringFormat
     $sf.Alignment = [System.Drawing.StringAlignment]::Center
     $sf.LineAlignment = [System.Drawing.StringAlignment]::Near
-
-    # كلمة Select (بيضاء عريضة)
-    $selFont = New-Object System.Drawing.Font("Arial", [float]($Size * 0.215), [System.Drawing.FontStyle]::Bold)
+    $black = [System.Drawing.Brushes]::Black
     $white = [System.Drawing.Brushes]::White
-    $selRect = New-Object System.Drawing.RectangleF(0, [float]($Size * 0.16), [float]$Size, [float]($Size * 0.25))
-    $g.DrawString("Select", $selFont, $white, $selRect, $sf)
 
-    # شارة ERP — نقيس النص ونحدّد عرض الشارة حسبه (مش بتتقص)
-    $erpFont = New-Object System.Drawing.Font("Arial", [float]($Size * 0.13), [System.Drawing.FontStyle]::Bold)
-    $badgeSize = $g.MeasureString("ERP", $erpFont)
-    $badgeW = [int]($badgeSize.Width + ($Size * 0.10))
-    $badgeH = [int]($Size * 0.26)
+    # كلمة Select (سوداء عريضة)
+    $selFont = New-Object System.Drawing.Font("Arial", [float]($Size * 0.20), [System.Drawing.FontStyle]::Bold)
+    $selRect = New-Object System.Drawing.RectangleF(0, [float]($Size * 0.20), [float]$Size, [float]($Size * 0.24))
+    $g.DrawString("Select", $selFont, $black, $selRect, $sf)
+
+    # شارة ERP موف — نقيس النص ونحدّد العرض حسبه (مش بتتقص)
+    $erpFont = New-Object System.Drawing.Font("Arial", [float]($Size * 0.125), [System.Drawing.FontStyle]::Bold)
+    $erpSize = $g.MeasureString("ERP", $erpFont)
+    $badgeW = [int]($erpSize.Width + ($Size * 0.10))
+    $badgeH = [int]($Size * 0.25)
     $badgeX = [int](($Size - $badgeW) / 2)
     $badgeY = [int]($Size * 0.50)
     $badgeRect = New-Object System.Drawing.Rectangle($badgeX, $badgeY, $badgeW, $badgeH)
-    $badgeBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($badgeRect,
-        [System.Drawing.Color]::FromArgb(255, 23, 59, 112),
-        [System.Drawing.Color]::FromArgb(255, 36, 88, 242),
-        [float](0))
+    $badgeBrush = Get-PurpleBrush $g $badgeRect
     $radius = [int]($Size * 0.055)
 
-    # رسم مسار مدوّر للشارة
+    # مسار مدوّر للشارة
     $gp = New-Object System.Drawing.Drawing2D.GraphicsPath
     $x = $badgeRect.X; $y = $badgeRect.Y; $w = $badgeRect.Width; $h = $badgeRect.Height
     $d = $radius * 2
@@ -61,7 +64,7 @@ function New-ErpIcon {
     Write-Output "saved: $Path"
 }
 
-# ===================== سبلاش صفحة البداية (نفس شكل اللوجو: Select + ERP جنب بعض) =====================
+# ===================== سبلاش صفحة البداية (خلفية بيضاء: Select أسود + ERP موف — جنب بعض زي اللوجو) =====================
 function New-ErpSplash {
     param([string]$Path, [int]$Size)
 
@@ -70,18 +73,15 @@ function New-ErpSplash {
     $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAlias
 
-    # نفس خلفية الـ appicon (أزرق متدرج)
+    # خلفية بيضاء
     $rect = New-Object System.Drawing.Rectangle(0, 0, $Size, $Size)
-    $brush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($rect,
-        [System.Drawing.Color]::FromArgb(255, 40, 33, 232),
-        [System.Drawing.Color]::FromArgb(255, 55, 183, 234),
-        [float](45))
-    $g.FillRectangle($brush, $rect) | Out-Null
+    $g.FillRectangle([System.Drawing.Brushes]::White, $rect) | Out-Null
 
+    $black = [System.Drawing.Brushes]::Black
     $white = [System.Drawing.Brushes]::White
 
     # نصوص اللوجو: Select + ERP — نقيس ونقلّ الحجم تلقائياً حتى يناسب المساحة
-    $maxW = [int]($Size * 0.86)   # أقصى عرض مسموح للوجو
+    $maxW = [int]($Size * 0.86)
     $selScale = 0.17
     $erpScale = 0.10
 
@@ -92,7 +92,6 @@ function New-ErpSplash {
     $badgePadX = [int]($Size * 0.038)
     $badgePadY = [int]($Size * 0.022)
 
-    # قياس + تصغير تلقائي حتى يتّسع اللوجو كامل داخل الإطار
     for ($i = 0; $i -lt 12; $i++) {
         $selSize = $g.MeasureString("Select", $selFont)
         $erpSize = $g.MeasureString("ERP", $erpFont)
@@ -106,11 +105,11 @@ function New-ErpSplash {
         $erpFont = New-Object System.Drawing.Font("Arial", [float]($Size * $erpScale), [System.Drawing.FontStyle]::Bold)
     }
 
-    $badgeH   = [int]($selSize.Height * 0.86)
-    $startX   = [int](($Size - $totalW) / 2)
-    $midY     = [int]($Size / 2)
+    $badgeH = [int]($selSize.Height * 0.86)
+    $startX = [int](($Size - $totalW) / 2)
+    $midY   = [int]($Size / 2)
 
-    # رسم Select (أبيض عريض) — بالمنتصف رأسياً
+    # رسم Select (أسود عريض) — بالمنتصف رأسياً
     $selRect = New-Object System.Drawing.RectangleF(
         [float]$startX,
         [float]($midY - $selSize.Height / 2),
@@ -119,18 +118,15 @@ function New-ErpSplash {
     $sfSel = New-Object System.Drawing.StringFormat
     $sfSel.Alignment = [System.Drawing.StringAlignment]::Near
     $sfSel.LineAlignment = [System.Drawing.StringAlignment]::Center
-    $g.DrawString("Select", $selFont, $white, $selRect, $sfSel)
+    $g.DrawString("Select", $selFont, $black, $selRect, $sfSel)
 
-    # شارة ERP (مدوّرة بتدرّج أزرق) — جنب Select على نفس السطر
+    # شارة ERP موف (مدوّرة بتدرّج) — جنب Select على نفس السطر
     $badgeX = [int]($startX + $selSize.Width + $gap)
     $badgeY = [int]($midY - $badgeH / 2)
     $radius = [int]($Size * 0.022)
 
     $badgeRect = New-Object System.Drawing.Rectangle($badgeX, $badgeY, $badgeW, $badgeH)
-    $badgeBrush = New-Object System.Drawing.Drawing2D.LinearGradientBrush($badgeRect,
-        [System.Drawing.Color]::FromArgb(255, 23, 59, 112),
-        [System.Drawing.Color]::FromArgb(255, 36, 88, 242),
-        [float](0))
+    $badgeBrush = Get-PurpleBrush $g $badgeRect
 
     $gp = New-Object System.Drawing.Drawing2D.GraphicsPath
     $x = $badgeRect.X; $y = $badgeRect.Y; $w = $badgeRect.Width; $h = $badgeRect.Height

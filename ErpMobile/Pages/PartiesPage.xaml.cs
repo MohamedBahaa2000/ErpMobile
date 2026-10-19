@@ -179,6 +179,7 @@ public partial class PartiesPage : ContentPage
         }
 
         await PartyRepository.Instance.DeleteAsync(party);
+        ToastService.Success($"تم حذف «{party.Name}» ✓");
         await LoadAsync();
     }
 

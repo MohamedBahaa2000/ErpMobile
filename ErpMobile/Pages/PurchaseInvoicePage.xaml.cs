@@ -155,12 +155,19 @@ public partial class PurchaseInvoicePage : ContentPage
         if (product is null)
         {
             BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"باركود غير معروف: {barcode} — تم تجاهله");
+            BarcodeScanCoordinator.ReportItemAdded("باركود غير معروف", $"{barcode} — لم يُضف", success: false);
             return true;
         }
 
         AddLine(product);
         _scanSessionCount++;
         BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"تمت إضافة: {product.Name}");
+
+        double linePrice = product.CostValue > 0 ? product.CostValue : product.Price;
+        BarcodeScanCoordinator.ReportItemAdded(
+            product.Name,
+            $"{product.Barcode} • سعر الشراء {FormatAmount(linePrice)} • {product.Unit}",
+            success: true);
         return true;
     }
 
@@ -597,10 +604,8 @@ public partial class PurchaseInvoicePage : ContentPage
             return false;
         }
 
-        await DisplayAlertAsync(
-            "تم الحفظ",
-            $"تم حفظ فاتورة المشتريات رقم {invoice.InvoiceNumber} بإجمالي {FormatAmount(invoice.Total)}.",
-            "موافق");
+        ToastService.Success(
+            $"تم حفظ فاتورة المشتريات رقم {invoice.InvoiceNumber} — الإجمالي {FormatAmount(invoice.Total)} ✓");
 
         return true;
     }

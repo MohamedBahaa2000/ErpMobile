@@ -10,39 +10,22 @@
     <ScrollView>
         <VerticalStackLayout Spacing="0">
 
-            <Grid HeightRequest="300">
-                <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#2118D8" Offset="0.0" />
-                        <GradientStop Color="#2458F2" Offset="0.55" />
-                        <GradientStop Color="#36AEEA" Offset="1.0" />
-                    </LinearGradientBrush>
-                </Grid.Background>
+            <Grid HeightRequest="330">
+                <!-- صورة الخلفية (تحت اللوجو) — مجلس أعمال احترافي -->
+                <Image Source="login_hero" Aspect="AspectFill" />
 
-                <Border
-                    WidthRequest="215"
-                    HeightRequest="215"
-                    Stroke="#FFFFFF"
-                    StrokeThickness="1"
-                    Opacity="0.12"
-                    StrokeShape="RoundRectangle 56"
-                    Rotation="32"
-                    TranslationX="88"
-                    TranslationY="86"
-                    HorizontalOptions="End"
-                    VerticalOptions="End" />
-
-                <Border
-                    WidthRequest="158"
-                    HeightRequest="158"
-                    Stroke="#FFFFFF"
-                    StrokeThickness="1"
-                    Opacity="0.1"
-                    StrokeShape="Ellipse"
-                    TranslationX="-70"
-                    TranslationY="-50"
-                    HorizontalOptions="Start"
-                    VerticalOptions="Start" />
+                <!-- تدرّج أزرق مميّز: غامق وكثيف في الأعلى → يندمج مع خلفية الصفحة في الأسفل -->
+                <BoxView>
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#F01408B8" Offset="0.0" />
+                            <GradientStop Color="#B32118D8" Offset="0.28" />
+                            <GradientStop Color="#662E7BEA" Offset="0.58" />
+                            <GradientStop Color="#2E36AEEA" Offset="0.82" />
+                            <GradientStop Color="#FFF3F6FC" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
 
                 <VerticalStackLayout
                     Padding="24,20"
@@ -155,6 +138,26 @@
                                     HeightRequest="48" />
                             </Border>
                         </VerticalStackLayout>
+
+                        <!-- تذكّرني + نسيت كلمة المرور -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <CheckBox
+                                x:Name="RememberCheck"
+                                VerticalOptions="Center"
+                                Color="#2458F2" />
+                            <Label
+                                Grid.Column="1"
+                                Text="تذكّرني على هذا الجهاز"
+                                FontSize="13"
+                                TextColor="#34445C"
+                                VerticalOptions="Center" />
+                            <Label
+                                Grid.Column="2"
+                                Text="نسيت كلمة المرور؟"
+                                FontSize="12"
+                                TextColor="#2458F2"
+                                VerticalOptions="Center" />
+                        </Grid>
 
                         <Label
                             x:Name="ErrorLabel"

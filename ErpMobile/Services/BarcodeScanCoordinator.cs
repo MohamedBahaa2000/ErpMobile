@@ -11,6 +11,16 @@ public static class BarcodeScanCoordinator
     /// <summary>يُستدعى عند كل مسح في وضع المسح المتصل: (عدد الأصناف المضافة، رسالة الحالة).</summary>
     public static event Action<int, string>? ProgressChanged;
 
+    /// <summary>
+    /// يُستدعى عند إضافة صنف (أو رفض باركود) لعرض معاينة فوق الكاميرا:
+    /// (اسم الصنف، التفاصيل، نجاح الإضافة).
+    /// </summary>
+    public static event Action<string, string, bool>? ItemAdded;
+
+    /// <summary>الإبلاغ عن صنف مضاف يُعرض فوق الكاميرا.</summary>
+    public static void ReportItemAdded(string name, string detail, bool success) =>
+        ItemAdded?.Invoke(name, detail, success);
+
     /// <summary>True عندما يكون الماسح في وضع المسح المتصل (أكثر من صنف).</summary>
     public static bool IsContinuous => _continuousHandler is not null;
 

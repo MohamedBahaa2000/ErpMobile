@@ -13,6 +13,8 @@ namespace ErpMobile
             Routing.RegisterRoute(nameof(PartiesPage), typeof(PartiesPage));
             Routing.RegisterRoute(nameof(PartyFormPage), typeof(PartyFormPage));
             Routing.RegisterRoute(nameof(BarcodeScannerPage), typeof(BarcodeScannerPage));
+            Routing.RegisterRoute(nameof(InvoicesListPage), typeof(InvoicesListPage));
+            Routing.RegisterRoute(nameof(ProductsListPage), typeof(ProductsListPage));
         }
     }
 }

@@ -10,33 +10,233 @@
     BackgroundColor="#F4F7FC">
 
     <ScrollView>
-        <VerticalStackLayout Padding="18,22" Spacing="18">
+        <VerticalStackLayout Padding="16,20" Spacing="20">
 
-            <!-- الترويسة: الشعار + الترحيب -->
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                <VerticalStackLayout Spacing="4" VerticalOptions="Center">
-                    <Label
-                        Text="أهلاً بعودتك"
-                        FontSize="14"
-                        TextColor="#748198" />
-                    <Label
-                        Text="المسؤول"
-                        FontSize="26"
+            <!-- ================= الترويسة المميّزة ================= -->
+            <Border
+                Padding="18,18"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 22">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#16295E" Offset="0.0" />
+                        <GradientStop Color="#2458F2" Offset="0.60" />
+                        <GradientStop Color="#37B7EA" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Shadow>
+                    <Shadow Brush="#1B2E6B" Offset="0,8" Radius="18" Opacity="0.28" />
+                </Border.Shadow>
+
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+
+                    <!-- أيقونة المستخدم (يمين في RTL) -->
+                    <Border
+                        WidthRequest="54"
+                        HeightRequest="54"
+                        BackgroundColor="#2EFFFFFF"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 17"
+                        VerticalOptions="Center">
+                        <Label
+                            Text="👤"
+                            FontSize="26"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- الترحيب -->
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="3"
+                        VerticalOptions="Center">
+                        <Label
+                            x:Name="WelcomeLabel"
+                            Text="أهلاً بعودتك 👋"
+                            FontSize="13"
+                            TextColor="#D6E2FF" />
+                        <Label
+                            x:Name="UserNameLabel"
+                            Text="المسؤول"
+                            FontSize="23"
+                            FontAttributes="Bold"
+                            TextColor="White" />
+                        <Label
+                            x:Name="DateLabel"
+                            Text=""
+                            FontSize="11"
+                            TextColor="#BFD2FF" />
+                    </VerticalStackLayout>
+
+                    <!-- زر تسجيل الخروج (يسار في RTL) -->
+                    <Border
+                        Grid.Column="2"
+                        Padding="10"
+                        BackgroundColor="#33FFFFFF"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14"
+                        HeightRequest="46"
+                        WidthRequest="46"
+                        VerticalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnLogoutClicked" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            Text="🚪"
+                            FontSize="20"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ================= العمليات اليومية ================= -->
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="ابدأ عمليتك"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="12">
+
+                    <!-- فاتورة بيع (الإجراء الأساسي) -->
+                    <Border
+                        Padding="16,16"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#E1523D" Offset="0.0" />
+                                <GradientStop Color="#F07A4E" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Shadow>
+                            <Shadow Brush="#E1523D" Offset="0,6" Radius="14" Opacity="0.30" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSalesAction" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="🧾" FontSize="26" />
+                            <Label Text="فاتورة بيع" FontSize="16" FontAttributes="Bold" TextColor="White" />
+                            <Label Text="إنشاء فاتورة جديدة" FontSize="11" TextColor="#FFE3DB" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- منتج جديد -->
+                    <Border
+                        Grid.Column="1"
+                        Padding="16,16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <Border.Shadow>
+                            <Shadow Brush="#253B65" Offset="0,5" Radius="12" Opacity="0.07" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProductAction" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="🏷" FontSize="26" />
+                            <Label Text="منتج جديد" FontSize="16" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="إضافة صنف للمخزون" FontSize="11" TextColor="#8995A7" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- العملاء -->
+                    <Border
+                        Grid.Row="1"
+                        Padding="16,16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <Border.Shadow>
+                            <Shadow Brush="#253B65" Offset="0,5" Radius="12" Opacity="0.07" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCustomersAction" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="👥" FontSize="26" />
+                            <Label Text="العملاء" FontSize="16" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="قائمة وإضافة عميل" FontSize="11" TextColor="#8995A7" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- الموردين -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="16,16"
+                        BackgroundColor="White"
+                        Stroke="#E5EAF2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                        <Border.Shadow>
+                            <Shadow Brush="#253B65" Offset="0,5" Radius="12" Opacity="0.07" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSuppliersAction" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="🚚" FontSize="26" />
+                            <Label Text="الموردين" FontSize="16" FontAttributes="Bold" TextColor="#192D4A" />
+                            <Label Text="قائمة وإضافة مورد" FontSize="11" TextColor="#8995A7" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- عرض القوائم الكاملة -->
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="عرض القوائم"
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button
+                        Text="📄 كل الفواتير"
+                        HeightRequest="48"
+                        CornerRadius="13"
+                        BackgroundColor="White"
+                        BorderColor="#DCE3ED"
+                        BorderWidth="1"
+                        TextColor="#173B70"
                         FontAttributes="Bold"
-                        TextColor="#173B70" />
-                </VerticalStackLayout>
-                <local:SelectLogoView
-                    Grid.Column="1"
-                    FontSize="22"
-                    VerticalOptions="Center" />
-            </Grid>
+                        FontSize="14"
+                        Clicked="OnAllInvoicesClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="📦 كل الأصناف"
+                        HeightRequest="48"
+                        CornerRadius="13"
+                        BackgroundColor="White"
+                        BorderColor="#DCE3ED"
+                        BorderWidth="1"
+                        TextColor="#173B70"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Clicked="OnAllProductsClicked" />
+                </Grid>
+            </VerticalStackLayout>
 
-            <!-- بطاقة مبيعات اليوم -->
+            <!-- ================= بطاقة مبيعات اليوم ================= -->
             <Border
                 Padding="20"
                 BackgroundColor="#173B70"
                 StrokeThickness="0"
                 StrokeShape="RoundRectangle 20">
+                <Border.Shadow>
+                    <Shadow Brush="#173B70" Offset="0,7" Radius="16" Opacity="0.22" />
+                </Border.Shadow>
                 <VerticalStackLayout Spacing="8">
                     <Label
                         Text="مبيعات اليوم"
@@ -73,58 +273,11 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!-- وحدات النظام -->
-            <VerticalStackLayout Spacing="12">
-                <Label
-                    Text="وحدات النظام"
-                    FontSize="19"
-                    FontAttributes="Bold"
-                    TextColor="#192D4A" />
-                <Grid
-                    x:Name="ModulesGrid"
-                    ColumnDefinitions="*,*"
-                    RowDefinitions="Auto,Auto"
-                    ColumnSpacing="10"
-                    RowSpacing="10" />
-            </VerticalStackLayout>
-
-            <!-- إجراءات سريعة -->
-            <VerticalStackLayout Spacing="12">
-                <Label
-                    Text="إجراءات سريعة"
-                    FontSize="19"
-                    FontAttributes="Bold"
-                    TextColor="#192D4A" />
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto" RowSpacing="12">
-                    <Button
-                        Text="فاتورة جديدة"
-                        HeightRequest="50"
-                        Padding="10,12"
-                        CornerRadius="14"
-                        BackgroundColor="#E1523D"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        Clicked="OnNewInvoiceClicked" />
-                    <Button
-                        Grid.Column="1"
-                        Text="إضافة منتج"
-                        HeightRequest="50"
-                        Padding="10,12"
-                        CornerRadius="14"
-                        BackgroundColor="White"
-                        BorderColor="#DCE3ED"
-                        BorderWidth="1"
-                        TextColor="#173B70"
-                        FontAttributes="Bold"
-                        Clicked="OnAddProductClicked" />
-                </Grid>
-            </VerticalStackLayout>
-
-            <!-- تحليلات -->
+            <!-- ================= التحليلات ================= -->
             <VerticalStackLayout Spacing="12">
                 <Label
                     Text="التحليلات"
-                    FontSize="19"
+                    FontSize="18"
                     FontAttributes="Bold"
                     TextColor="#192D4A" />
 
@@ -231,11 +384,11 @@
                 </Border>
             </VerticalStackLayout>
 
-            <!-- أحدث الفواتير -->
+            <!-- ================= أحدث الفواتير ================= -->
             <VerticalStackLayout Spacing="12">
                 <Label
                     Text="أحدث الفواتير"
-                    FontSize="19"
+                    FontSize="18"
                     FontAttributes="Bold"
                     TextColor="#192D4A" />
                 <VerticalStackLayout

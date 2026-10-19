@@ -70,7 +70,7 @@ public partial class PartyFormPage : ContentPage
             _existing = null;
             PartyId = 0;
             ClearForm();
-            await DisplayAlertAsync("تم الحفظ", "تم حفظ السجل، أدخل السجل التالي.", "موافق");
+            ToastService.Success("تم حفظ السجل ✓ أدخل السجل التالي");
         }
     }
 

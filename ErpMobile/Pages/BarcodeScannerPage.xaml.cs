@@ -1,3 +1,4 @@
+using ErpMobile.Models;
 using ErpMobile.Services;
 using Microsoft.Maui.ApplicationModel;
 using ZXing.Net.Maui;
@@ -7,6 +8,7 @@ namespace ErpMobile.Pages;
 public partial class BarcodeScannerPage : ContentPage
 {
     private int _isFinishing;
+    private CancellationTokenSource? _cardCts;
 
     public BarcodeScannerPage()
     {
@@ -23,6 +25,7 @@ public partial class BarcodeScannerPage : ContentPage
     {
         base.OnAppearing();
         BarcodeScanCoordinator.ProgressChanged += OnScanProgress;
+        BarcodeScanCoordinator.ItemAdded += OnItemAdded;
         ScanCountLabel.Text = "الأصناف المضافة: 0";
         ScanMessageLabel.Text = BarcodeScanCoordinator.IsContinuous
             ? "وضع المسح المتصل: مسح متتالي لحد ما تضغط «تم»"
@@ -33,6 +36,8 @@ public partial class BarcodeScannerPage : ContentPage
     protected override void OnDisappearing()
     {
         BarcodeScanCoordinator.ProgressChanged -= OnScanProgress;
+        BarcodeScanCoordinator.ItemAdded -= OnItemAdded;
+        _cardCts?.Cancel();
         CameraReader.IsDetecting = false;
         BarcodeScanCoordinator.Complete(null);
         base.OnDisappearing();
@@ -50,6 +55,54 @@ public partial class BarcodeScannerPage : ContentPage
         });
     }
 
+    /// <summary>عرض معاينة الصنف المضاف فوق الكاميرا (أخضر) أو الباركود المرفوض (أحمر).</summary>
+    private void OnItemAdded(string name, string detail, bool success) =>
+        MainThread.BeginInvokeOnMainThread(() => _ = ShowAddedCardAsync(name, detail, success));
+
+    private async Task ShowAddedCardAsync(string name, string detail, bool success)
+    {
+        // نلغي أي معاينة سابقة معلّقة
+        _cardCts?.Cancel();
+        _cardCts?.Dispose();
+        var cts = new CancellationTokenSource();
+        _cardCts = cts;
+        CancellationToken token = cts.Token;
+
+        try
+        {
+            AddedCard.BackgroundColor = Color.FromArgb(success ? "#17A45C" : "#D64545");
+            AddedIcon.Text = success ? "✓" : "✗";
+            AddedName.Text = success ? $"تمت إضافة {name}" : name;
+            AddedDetail.Text = detail;
+            AddedDetail.TextColor = success
+                ? Color.FromArgb("#E9F8F0")
+                : Color.FromArgb("#FFE7E7");
+
+            AddedCard.IsVisible = true;
+            AddedCard.Opacity = 0;
+            AddedCard.TranslationY = -18;
+            AddedCard.Scale = 0.9;
+
+            await Task.WhenAll(
+                AddedCard.FadeTo(1, 180, Easing.CubicOut),
+                AddedCard.TranslateTo(0, 0, 180, Easing.CubicOut),
+                AddedCard.ScaleTo(1, 180, Easing.CubicOut));
+
+            await Task.Delay(1400, token);
+
+            await AddedCard.FadeTo(0, 240, Easing.CubicIn);
+
+            if (!token.IsCancellationRequested)
+            {
+                AddedCard.IsVisible = false;
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // وصلت معاينة جديدة قبل إخفاء السابقة — نتجاهل
+        }
+    }
+
     private async void OnBarcodesDetected(object? sender, BarcodeDetectionEventArgs e)
     {
         string? barcode = e.Results.FirstOrDefault()?.Value;
@@ -61,6 +114,9 @@ public partial class BarcodeScannerPage : ContentPage
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
             CameraReader.IsDetecting = false;
+
+            // صوت عند قراءة الباركود
+            ScanFeedback.Beep();
 
             if (BarcodeScanCoordinator.IsContinuous)
             {
@@ -77,6 +133,23 @@ public partial class BarcodeScannerPage : ContentPage
             }
             else
             {
+                // وضع المسح لمرة واحدة: نعرض اسم الصنف ثم نعود
+                Product? product = await ProductRepository.Instance.GetByBarcodeAsync(barcode);
+                if (product is not null)
+                {
+                    BarcodeScanCoordinator.ReportItemAdded(
+                        product.Name,
+                        $"{product.Barcode} • {product.Price:0.00}",
+                        success: true);
+                }
+                else
+                {
+                    BarcodeScanCoordinator.ReportItemAdded(
+                        "باركود غير معروف", barcode, success: false);
+                }
+
+                await Task.Delay(500);
+
                 BarcodeScanCoordinator.Complete(barcode);
             }
 

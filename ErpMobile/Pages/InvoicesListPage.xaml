@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.InvoicesListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+        <!-- الشريط العلوي -->
+        <Grid
+            Padding="16,12"
+            ColumnDefinitions="Auto,*,Auto"
+            ColumnSpacing="10"
+            BackgroundColor="#173B70">
+            <Button
+                Text="✕"
+                WidthRequest="44"
+                HeightRequest="38"
+                Padding="0"
+                CornerRadius="8"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                FontAttributes="Bold"
+                Clicked="OnCloseClicked" />
+            <Label
+                Grid.Column="1"
+                Text="عرض الفواتير"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center"
+                HorizontalTextAlignment="Center" />
+            <Button
+                Grid.Column="2"
+                Text="＋ جديدة"
+                HeightRequest="38"
+                Padding="14,4"
+                CornerRadius="10"
+                BackgroundColor="#E1523D"
+                TextColor="White"
+                FontAttributes="Bold"
+                Clicked="OnAddClicked" />
+        </Grid>
+
+        <!-- بحث -->
+        <Grid
+            Grid.Row="1"
+            Padding="14,10,14,6">
+            <Border
+                Padding="10,0"
+                BackgroundColor="White"
+                Stroke="#D5D4EC"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 10">
+                <Entry
+                    x:Name="SearchEntry"
+                    Placeholder="ابحث برقم الفاتورة أو اسم العميل..."
+                    FontSize="13"
+                    TextColor="#192D4A"
+                    PlaceholderColor="#9AA4B8"
+                    HeightRequest="44"
+                    TextChanged="OnSearchChanged" />
+            </Border>
+        </Grid>
+
+        <!-- فلاتر -->
+        <Grid
+            Grid.Row="2"
+            Padding="14,4"
+            ColumnDefinitions="*,*,*"
+            ColumnSpacing="8">
+            <Button
+                x:Name="FilterAllButton"
+                Text="الكل"
+                HeightRequest="38"
+                CornerRadius="10"
+                FontSize="13"
+                FontAttributes="Bold"
+                Clicked="OnFilterAllClicked" />
+            <Button
+                x:Name="FilterPaidButton"
+                Grid.Column="1"
+                Text="مدفوعة"
+                HeightRequest="38"
+                CornerRadius="10"
+                FontSize="13"
+                FontAttributes="Bold"
+                Clicked="OnFilterPaidClicked" />
+            <Button
+                x:Name="FilterDueButton"
+                Grid.Column="2"
+                Text="متبقية"
+                HeightRequest="38"
+                CornerRadius="10"
+                FontSize="13"
+                FontAttributes="Bold"
+                Clicked="OnFilterDueClicked" />
+        </Grid>
+
+        <!-- ملخص -->
+        <Grid
+            Grid.Row="3"
+            Padding="14,6"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="10">
+            <Border
+                Padding="12,9"
+                BackgroundColor="#FFF4E8"
+                Stroke="#F5C89A"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="عدد الفواتير المعروضة" FontSize="11" TextColor="#8A6A4A" />
+                    <Label x:Name="CountLabel" Text="0" FontSize="17" FontAttributes="Bold" TextColor="#E1761B" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                Grid.Column="1"
+                Padding="12,9"
+                BackgroundColor="#E9F8FD"
+                Stroke="#A6E1F2"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="الإجمالي" FontSize="11" TextColor="#4C8A9B" />
+                    <Label x:Name="TotalLabel" Text="0.00" FontSize="17" FontAttributes="Bold" TextColor="#0E9BB8" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- القائمة -->
+        <ScrollView Grid.Row="4">
+            <VerticalStackLayout Padding="14,4" Spacing="10">
+                <Label
+                    x:Name="EmptyLabel"
+                    Text=""
+                    FontSize="13"
+                    TextColor="#8A91A6"
+                    HorizontalTextAlignment="Center"
+                    IsVisible="False" />
+                <VerticalStackLayout
+                    x:Name="ListContainer"
+                    Spacing="10" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

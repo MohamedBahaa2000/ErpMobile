@@ -4,9 +4,16 @@ using ErpMobile.Services;
 
 namespace ErpMobile.Pages;
 
+[QueryProperty(nameof(ProductId), "id")]
 public partial class ProductPage : ContentPage
 {
     private const string ChooseItem = "-- اختر --";
+
+    /// <summary>معرّف الصنف المراد تعديله — 0 لصنف جديد.</summary>
+    public int ProductId { get; set; }
+
+    private bool _isEditMode;
+    private bool _loaded;
 
     public ProductPage()
     {
@@ -38,6 +45,64 @@ public partial class ProductPage : ContentPage
     // ---------------------------------------------------------------------
     // المسح والحقول الحية
     // ---------------------------------------------------------------------
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // تحميل الصنف المراد تعديله مرة واحدة
+        if (!_loaded && ProductId > 0)
+        {
+            _loaded = true;
+            await LoadProductAsync();
+        }
+    }
+
+    private async Task LoadProductAsync()
+    {
+        Product? product = await ProductRepository.Instance.GetByIdAsync(ProductId);
+        if (product is null)
+        {
+            return;
+        }
+
+        _isEditMode = true;
+
+        NameEntry.Text = product.Name;
+        BarcodeEntry.Text = product.Barcode;
+        HelperCodeEntry.Text = product.HelperCode;
+        EnglishNameEntry.Text = product.EnglishName;
+        PriceEntry.Text = product.Price.ToString("0.00", CultureInfo.InvariantCulture);
+        WholesalePriceEntry.Text = product.WholesalePrice.ToString("0.00", CultureInfo.InvariantCulture);
+        CompanyCodeEntry.Text = product.CompanyCode;
+        CostValueEntry.Text = product.CostValue.ToString("0.00", CultureInfo.InvariantCulture);
+        NotesEditor.Text = product.Notes;
+        IsStockCheck.IsChecked = product.IsStock;
+        IsTaxableCheck.IsChecked = product.IsTaxable;
+
+        SelectInPicker(UnitPicker, product.Unit);
+        SelectInPicker(OriginPicker, product.Origin);
+        SelectInPicker(CategoryPicker, product.Category);
+        SelectInPicker(ManufacturerPicker, product.Manufacturer);
+        SelectInPicker(CostMethodPicker, product.CostMethod);
+
+        Title = "تعديل صنف";
+        OnPriceFieldsChanged(null!, new TextChangedEventArgs(string.Empty, string.Empty));
+    }
+
+    private static void SelectInPicker(Picker picker, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        int index = picker.Items.IndexOf(value);
+        if (index >= 0)
+        {
+            picker.SelectedIndex = index;
+        }
+    }
 
     private async void OnScanBarcodeClicked(object? sender, EventArgs e)
     {
@@ -104,7 +169,7 @@ public partial class ProductPage : ContentPage
         if (await SaveProductAsync())
         {
             ClearForm();
-            await DisplayAlertAsync("تم الحفظ", "تم حفظ الصنف، أدخل بيانات الصنف التالي.", "موافق");
+            ToastService.Success("تم حفظ الصنف ✓ أدخل بيانات الصنف التالي");
         }
     }
 
@@ -113,6 +178,7 @@ public partial class ProductPage : ContentPage
         if (await SaveProductAsync())
         {
             await Shell.Current.GoToAsync("..");
+            ToastService.Success("تم حفظ الصنف ✓");
         }
     }
 
@@ -161,6 +227,19 @@ public partial class ProductPage : ContentPage
             Notes = NotesEditor.Text?.Trim() ?? string.Empty
         };
 
+        if (_isEditMode)
+        {
+            product.Id = ProductId;
+            bool updated = await ProductRepository.Instance.UpdateAsync(product);
+            if (!updated)
+            {
+                await DisplayAlertAsync("الكود مسجل", "يوجد صنف آخر مسجل بهذا الكود.", "موافق");
+                return false;
+            }
+
+            return true;
+        }
+
         bool added = await ProductRepository.Instance.AddAsync(product);
         if (!added)
         {
@@ -173,6 +252,10 @@ public partial class ProductPage : ContentPage
 
     private void ClearForm()
     {
+        // «حفظ وإضافة جديد» يعيد النموذج لوضع الصنف الجديد
+        _isEditMode = false;
+        ProductId = 0;
+
         NameEntry.Text = string.Empty;
         BarcodeEntry.Text = string.Empty;
         HelperCodeEntry.Text = string.Empty;

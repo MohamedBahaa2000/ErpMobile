@@ -61,6 +61,36 @@ public sealed class ProductRepository
         return await _database.Table<Product>().OrderBy(item => item.Name).ToListAsync();
     }
 
+    /// <summary>جلب صنف بالمعرّف (للتعديل من صفحة العرض).</summary>
+    public async Task<Product?> GetByIdAsync(int id)
+    {
+        await InitializeAsync();
+        return await _database.Table<Product>().Where(item => item.Id == id).FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// تحديث صنف موجود — يسمح بإبقاء الباركود نفسه لهذا الصنف،
+    /// ويرفض الباركود إذا كان مسجلاً لصنف آخر.
+    /// </summary>
+    public async Task<bool> UpdateAsync(Product product)
+    {
+        await InitializeAsync();
+
+        product.Barcode = product.Barcode.Trim();
+        Product? conflict = await _database
+            .Table<Product>()
+            .Where(item => item.Barcode == product.Barcode && item.Id != product.Id)
+            .FirstOrDefaultAsync();
+
+        if (conflict is not null)
+        {
+            return false;
+        }
+
+        await _database.UpdateAsync(product);
+        return true;
+    }
+
     private async Task InitializeAsync()
     {
         if (_initialized)

@@ -6,98 +6,60 @@ namespace ErpMobile.Pages;
 
 public partial class DashboardPage : ContentPage
 {
-    private sealed record ModuleTile(string Title, string Color, string Emoji, string? Route);
-
-    private static readonly ModuleTile[] Modules =
-    [
-        new("العملاء", "#1FB6E8", "👥", $"{nameof(PartiesPage)}?type=customer"),
-        new("الموردين", "#0E9BB8", "🚚", $"{nameof(PartiesPage)}?type=supplier"),
-        new("المبيعات", "#E1523D", "📈", nameof(InvoicePage)),
-        new("الأصناف", "#6B62C7", "🏷", nameof(ProductPage)),
-    ];
-
     public DashboardPage()
     {
         InitializeComponent();
-        BuildModules();
-    }
-
-    private void BuildModules()
-    {
-        for (int index = 0; index < Modules.Length; index++)
-        {
-            ModuleTile module = Modules[index];
-            var title = new Label
-            {
-                Text = module.Title,
-                FontSize = 14,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = Colors.White,
-                HorizontalTextAlignment = TextAlignment.End,
-                LineBreakMode = LineBreakMode.WordWrap
-            };
-
-            var emoji = new Label
-            {
-                Text = module.Emoji,
-                FontSize = 22,
-                HorizontalTextAlignment = TextAlignment.Start,
-                Opacity = 0.85
-            };
-
-            var content = new Grid();
-            content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
-            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            content.RowSpacing = 10;
-            content.Children.Add(title);
-            content.Children.Add(emoji);
-            Grid.SetRow(title, 0);
-            Grid.SetRow(emoji, 1);
-
-            var tile = new Border
-            {
-                Padding = new Thickness(14, 14),
-                BackgroundColor = Color.FromArgb(module.Color),
-                StrokeThickness = 0,
-                Content = content
-            };
-            SetRoundedShape(tile, 14);
-
-            var tap = new TapGestureRecognizer();
-            tap.Tapped += OnModuleTapped;
-            tap.CommandParameter = module;
-            tile.GestureRecognizers.Add(tap);
-
-            Grid.SetRow(tile, index / 2);
-            Grid.SetColumn(tile, index % 2);
-            ModulesGrid.Children.Add(tile);
-        }
-    }
-
-    private async void OnModuleTapped(object? sender, TappedEventArgs e)
-    {
-        if (e.Parameter is not ModuleTile module)
-        {
-            return;
-        }
-
-        if (module.Route is not null)
-        {
-            await Shell.Current.GoToAsync(module.Route);
-            return;
-        }
-
-        await DisplayAlertAsync(
-            module.Title,
-            "هذه الوحدة معروضة للعرض فقط في نسخة الموبايل؛ يتم تنفيذ فواتير المبيعات والأصناف حالياً.",
-            "موافق");
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        SetupHeader();
         await LoadDataAsync();
+    }
+
+    private void SetupHeader()
+    {
+        string username = SessionManager.SavedUsername;
+        UserNameLabel.Text = string.IsNullOrWhiteSpace(username) ? "المسؤول" : username;
+        DateLabel.Text = DateTime.Now.ToString("dddd، d MMMM yyyy", new CultureInfo("ar-EG"));
+    }
+
+    // ===================== العمليات اليومية =====================
+
+    private async void OnSalesAction(object? sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(InvoicePage));
+
+    private async void OnProductAction(object? sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(ProductPage));
+
+    private async void OnCustomersAction(object? sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync($"{nameof(PartiesPage)}?type=customer");
+
+    private async void OnSuppliersAction(object? sender, TappedEventArgs e) =>
+        await Shell.Current.GoToAsync($"{nameof(PartiesPage)}?type=supplier");
+
+    private async void OnAllInvoicesClicked(object? sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(InvoicesListPage));
+
+    private async void OnAllProductsClicked(object? sender, EventArgs e) =>
+        await Shell.Current.GoToAsync(nameof(ProductsListPage));
+
+    private async void OnLogoutClicked(object? sender, TappedEventArgs e)
+    {
+        bool confirm = await DisplayAlertAsync(
+            "تسجيل الخروج",
+            "هل تريد تسجيل الخروج من الحساب؟",
+            "نعم",
+            "إلغاء");
+
+        if (!confirm)
+        {
+            return;
+        }
+
+        SessionManager.SignOut();
+        await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
     }
 
     private async Task LoadDataAsync()
@@ -494,26 +456,6 @@ public partial class DashboardPage : ContentPage
         {
             // في حال عدم توفر الخاصية يتم إبقاء الحدود مستقيمة
         }
-    }
-
-    private async void OnNewInvoiceClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(InvoicePage));
-    }
-
-    private async void OnNewPurchaseInvoiceClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(PurchaseInvoicePage));
-    }
-
-    private async void OnAddPartyClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync($"{nameof(PartiesPage)}?type=customer");
-    }
-
-    private async void OnAddProductClicked(object? sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync(nameof(ProductPage));
     }
 
     private static string FormatAmount(double amount) =>

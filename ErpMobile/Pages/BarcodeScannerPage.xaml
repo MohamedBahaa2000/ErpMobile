@@ -60,10 +60,67 @@
                 LineBreakMode="TailTruncation" />
         </Grid>
 
-        <zxing:CameraBarcodeReaderView
-            x:Name="CameraReader"
-            Grid.Row="2"
-            IsDetecting="True"
-            BarcodesDetected="OnBarcodesDetected" />
+        <Grid Grid.Row="2">
+            <zxing:CameraBarcodeReaderView
+                x:Name="CameraReader"
+                IsDetecting="True"
+                BarcodesDetected="OnBarcodesDetected" />
+
+            <!-- معاينة الصنف المضاف — تظهر فوق الكاميرا لتوضيح أن الصنف أُضيف -->
+            <Border
+                x:Name="AddedCard"
+                Margin="16,18"
+                Padding="14,12"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16"
+                HorizontalOptions="Center"
+                VerticalOptions="Start"
+                MaximumWidthRequest="400"
+                IsVisible="False"
+                Opacity="0">
+                <Border.Shadow>
+                    <Shadow Brush="#0B1B33" Offset="0,8" Radius="18" Opacity="0.45" />
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="11">
+                    <Border
+                        x:Name="AddedIconBox"
+                        WidthRequest="38"
+                        HeightRequest="38"
+                        Padding="0"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 12"
+                        BackgroundColor="#33FFFFFF"
+                        VerticalOptions="Center">
+                        <Label
+                            x:Name="AddedIcon"
+                            Text="✓"
+                            FontSize="20"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            x:Name="AddedName"
+                            Text="تمت الإضافة"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="White"
+                            LineBreakMode="TailTruncation" />
+                        <Label
+                            x:Name="AddedDetail"
+                            Text=""
+                            FontSize="12"
+                            TextColor="#EAF7F0"
+                            Opacity="0.95"
+                            LineBreakMode="TailTruncation" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </Grid>
     </Grid>
 </ContentPage>

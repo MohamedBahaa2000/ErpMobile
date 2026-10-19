@@ -26,7 +26,7 @@
             VerticalOptions="Center">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#2821E8" Offset="0.0" />
+                    <GradientStop Color="#173B70" Offset="0.0" />
                     <GradientStop Color="#2458F2" Offset="0.56" />
                     <GradientStop Color="#37B7EA" Offset="1.0" />
                 </LinearGradientBrush>
