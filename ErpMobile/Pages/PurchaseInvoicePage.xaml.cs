@@ -1,0 +1,667 @@
+using System.Globalization;
+using ErpMobile.Models;
+using ErpMobile.Services;
+
+namespace ErpMobile.Pages;
+
+public partial class PurchaseInvoicePage : ContentPage
+{
+    private static readonly double[] ItemColumnWidths = [40, 95, 135, 70, 65, 80, 90, 65, 85, 85, 110, 45];
+    private static readonly double[] PaymentColumnWidths = [40, 110, 150, 95, 115, 170, 45];
+
+    private readonly List<PurchaseLine> _lines = [];
+    private readonly List<PaymentLine> _payments = [];
+
+    private int? _invoiceNumber;
+    private bool _ready;
+    private bool _scanning;
+    private int _scanSessionCount;
+
+    private double _subtotal;
+    private double _itemDiscount;
+    private double _invoiceDiscount;
+    private double _vat;
+    private double _total;
+    private double _paid;
+    private double _remaining;
+
+    private sealed class PurchaseLine
+    {
+        public Product Product { get; init; } = null!;
+        public Label LineNumberLabel { get; set; } = null!;
+        public Entry QuantityEntry { get; set; } = null!;
+        public Entry PriceEntry { get; set; } = null!;
+        public Entry DiscountPercentEntry { get; set; } = null!;
+        public Label GrossLabel { get; set; } = null!;
+        public Label DiscountAmountLabel { get; set; } = null!;
+        public Label NetLabel { get; set; } = null!;
+        public Entry NoteEntry { get; set; } = null!;
+    }
+
+    private sealed class PaymentLine
+    {
+        public Label NumberLabel { get; set; } = null!;
+        public Picker MethodPicker { get; set; } = null!;
+        public Entry AccountEntry { get; set; } = null!;
+        public Entry AmountEntry { get; set; } = null!;
+        public DatePicker DateEntry { get; set; } = null!;
+        public Entry NoteEntry { get; set; } = null!;
+    }
+
+    public PurchaseInvoicePage()
+    {
+        InitializeComponent();
+
+        StorePicker.ItemsSource = new[] { "Main Store", "مخزن بضاعة أول" };
+        StorePicker.SelectedIndex = 0;
+
+        InvoiceTypePicker.ItemsSource = new[] { "نقدي", "آجل" };
+        InvoiceTypePicker.SelectedIndex = 0;
+
+        PriceListPicker.ItemsSource = new[] { "-- اختر --", "سعر الشراء", "سعر الجملة" };
+        PriceListPicker.SelectedIndex = 0;
+
+        ApproveJournalPicker.ItemsSource = new[] { "معتمد", "غير معتمد" };
+        ApproveJournalPicker.SelectedIndex = 0;
+
+        ApproveStorePicker.ItemsSource = new[] { "معتمد", "غير معتمد" };
+        ApproveStorePicker.SelectedIndex = 0;
+
+        InvoiceDatePicker.Date = DateTime.Now;
+
+        ScanStatusLabel.Text = "المسح المتصل يضيف عدة أصناف متتالية حتى تضغط «تم ✓ رجوع»";
+
+        _ready = true;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (_payments.Count == 0)
+        {
+            AddPaymentRow();
+        }
+
+        if (_invoiceNumber is null)
+        {
+            await LoadInvoiceNumberAsync();
+        }
+
+        Recalculate();
+    }
+
+    private async Task LoadInvoiceNumberAsync()
+    {
+        int number = await PurchaseInvoiceRepository.Instance.GetNextInvoiceNumberAsync();
+        _invoiceNumber = number;
+        InvoiceNumberEntry.Text = number.ToString(CultureInfo.InvariantCulture);
+        InvoiceHeaderLabel.Text = $"فاتورة مشتريات #{number}";
+    }
+
+    // ---------------------------------------------------------------------
+    // الباركود وإضافة البنود
+    // ---------------------------------------------------------------------
+
+    private async void OnScanBarcodeClicked(object? sender, EventArgs e)
+    {
+        if (_scanning)
+        {
+            BarcodeScanCoordinator.Complete(null);
+            return;
+        }
+
+        _scanning = true;
+        _scanSessionCount = 0;
+        ScanButton.Text = "إيقاف المسح";
+        ScanStatusLabel.TextColor = Color.FromArgb("#7A8299");
+        ScanStatusLabel.Text = "المسح المتصل يعمل... امسح الأصناف بالترتيب ثم اضغط «تم ✓ رجوع»";
+
+        try
+        {
+            await BarcodeScanCoordinator.ScanContinuousAsync(AddScannedProductAsync);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            await DisplayAlertAsync("إذن الكاميرا", "اسمح للتطبيق باستخدام الكاميرا لمسح الباركود.", "موافق");
+        }
+        catch (InvalidOperationException)
+        {
+            // جلسة مسح أخرى شغالة بالفعل
+        }
+        finally
+        {
+            _scanning = false;
+            ScanButton.Text = "مسح";
+
+            if (_scanSessionCount > 0)
+            {
+                ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
+                ScanStatusLabel.Text = $"تمت إضافة {_scanSessionCount} صنف للفاتورة — اضغط «مسح» للمتابعة";
+            }
+            else
+            {
+                ScanStatusLabel.TextColor = Color.FromArgb("#7A8299");
+                ScanStatusLabel.Text = "لم يتم إضافة أصناف — المسح المتصل يضيف عدة أصناف حتى تضغط «تم ✓ رجوع»";
+            }
+        }
+    }
+
+    private async Task<bool> AddScannedProductAsync(string barcode)
+    {
+        BarcodeEntry.Text = barcode;
+
+        Product? product = await ProductRepository.Instance.GetByBarcodeAsync(barcode);
+        if (product is null)
+        {
+            BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"باركود غير معروف: {barcode} — تم تجاهله");
+            return true;
+        }
+
+        AddLine(product);
+        _scanSessionCount++;
+        BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"تمت إضافة: {product.Name}");
+        return true;
+    }
+
+    private async void OnAddBarcodeClicked(object? sender, EventArgs e)
+    {
+        string barcode = BarcodeEntry.Text?.Trim() ?? string.Empty;
+        if (barcode.Length == 0)
+        {
+            await DisplayAlertAsync("الباركود مطلوب", "امسح الباركود أو أدخله أولاً.", "موافق");
+            return;
+        }
+
+        Product? product = await ProductRepository.Instance.GetByBarcodeAsync(barcode);
+        if (product is null)
+        {
+            await DisplayAlertAsync("المنتج غير موجود", "أضف المنتج أولاً من وحدة الأصناف ثم أعد المحاولة.", "موافق");
+            return;
+        }
+
+        AddLine(product);
+        BarcodeEntry.Text = string.Empty;
+    }
+
+    private void AddLine(Product product)
+    {
+        var item = new PurchaseLine { Product = product };
+
+        var row = CreateRow(ItemColumnWidths);
+
+        // سعر الشراء = التكلفة النهائية إن وُجدت، وإلا سعر البيع
+        double purchasePrice = product.CostValue > 0 ? product.CostValue : product.Price;
+
+        item.LineNumberLabel = MakeCell((_lines.Count + 1).ToString(CultureInfo.InvariantCulture));
+        Label codeLabel = MakeCell(product.Barcode);
+        Label nameLabel = MakeCell(product.Name);
+        Label unitLabel = MakeCell(product.Unit);
+        item.QuantityEntry = MakeCellEntry("1", Keyboard.Numeric, OnInvoiceInputChanged);
+        item.PriceEntry = MakeCellEntry(FormatAmount(purchasePrice), Keyboard.Numeric, OnInvoiceInputChanged);
+        item.GrossLabel = MakeCell(FormatAmount(purchasePrice));
+        item.DiscountPercentEntry = MakeCellEntry("0", Keyboard.Numeric, OnInvoiceInputChanged);
+        item.DiscountAmountLabel = MakeCell("0.00");
+        item.NetLabel = MakeCell(FormatAmount(purchasePrice));
+        item.NoteEntry = MakeCellEntry(string.Empty, Keyboard.Default, null);
+
+        var deleteButton = CreateDeleteButton();
+
+        View[] views =
+        [
+            item.LineNumberLabel,
+            codeLabel,
+            nameLabel,
+            unitLabel,
+            item.QuantityEntry,
+            item.PriceEntry,
+            item.GrossLabel,
+            item.DiscountPercentEntry,
+            item.DiscountAmountLabel,
+            item.NetLabel,
+            item.NoteEntry,
+            deleteButton
+        ];
+        AddColumns(row, views);
+
+        deleteButton.Clicked += (_, _) =>
+        {
+            ItemsContainer.Children.Remove(row);
+            _lines.Remove(item);
+            RenumberLines();
+            EmptyItemsLabel.IsVisible = _lines.Count == 0;
+            Recalculate();
+        };
+
+        ItemsContainer.Children.Add(row);
+        _lines.Add(item);
+        EmptyItemsLabel.IsVisible = false;
+        Recalculate();
+    }
+
+    private void RenumberLines()
+    {
+        for (int index = 0; index < _lines.Count; index++)
+        {
+            _lines[index].LineNumberLabel.Text = (index + 1).ToString(CultureInfo.InvariantCulture);
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // السداد
+    // ---------------------------------------------------------------------
+
+    private void AddPaymentRow()
+    {
+        var payment = new PaymentLine();
+
+        var row = CreateRow(PaymentColumnWidths);
+
+        payment.NumberLabel = MakeCell((_payments.Count + 1).ToString(CultureInfo.InvariantCulture));
+        payment.MethodPicker = new Picker
+        {
+            ItemsSource = new[] { "نقد", "شيك", "تحويل بنكي", "آجل" },
+            SelectedIndex = 0,
+            FontSize = 11,
+            HeightRequest = 32,
+            BackgroundColor = Colors.Transparent,
+            TextColor = Color.FromArgb("#34445C")
+        };
+        payment.AccountEntry = MakeCellEntry("خزينة افتراضية", Keyboard.Default, null);
+        payment.AmountEntry = MakeCellEntry("0.00", Keyboard.Numeric, OnInvoiceInputChanged);
+        payment.DateEntry = new DatePicker
+        {
+            Date = DateTime.Now,
+            FontSize = 10,
+            HeightRequest = 32,
+            WidthRequest = 110,
+            BackgroundColor = Colors.Transparent,
+            TextColor = Color.FromArgb("#34445C")
+        };
+        payment.NoteEntry = MakeCellEntry(string.Empty, Keyboard.Default, null);
+
+        var deleteButton = CreateDeleteButton();
+
+        View[] views =
+        [
+            payment.NumberLabel,
+            payment.MethodPicker,
+            payment.AccountEntry,
+            payment.AmountEntry,
+            payment.DateEntry,
+            payment.NoteEntry,
+            deleteButton
+        ];
+        AddColumns(row, views);
+
+        deleteButton.Clicked += (_, _) =>
+        {
+            PaymentsContainer.Children.Remove(row);
+            _payments.Remove(payment);
+            RenumberPayments();
+            Recalculate();
+        };
+
+        PaymentsContainer.Children.Add(row);
+        _payments.Add(payment);
+        Recalculate();
+    }
+
+    private void RenumberPayments()
+    {
+        for (int index = 0; index < _payments.Count; index++)
+        {
+            _payments[index].NumberLabel.Text = (index + 1).ToString(CultureInfo.InvariantCulture);
+        }
+    }
+
+    private async void OnAddPaymentClicked(object? sender, EventArgs e)
+    {
+        AddPaymentRow();
+        await Task.CompletedTask;
+    }
+
+    private async void OnPickSupplierClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            List<Party> suppliers = await PartyRepository.Instance.GetAllAsync(Party.Supplier);
+            if (suppliers.Count == 0)
+            {
+                await DisplayAlertAsync("لا يوجد موردين", "سجّل الموردين أولاً من الداشبورد → الموردين.", "موافق");
+                return;
+            }
+
+            string[] names = suppliers.Select(item => $"{item.Code} · {item.Name}").ToArray();
+            string? choice = await DisplayActionSheetAsync("اختيار المورد", "إلغاء", null, names);
+
+            if (string.IsNullOrEmpty(choice) || choice == "إلغاء")
+            {
+                return;
+            }
+
+            string selectedName = choice[(choice.IndexOf('·') + 1)..].Trim();
+            SupplierEntry.Text = selectedName;
+        }
+        catch (Exception)
+        {
+            // تجاهل
+        }
+    }
+
+    // ---------------------------------------------------------------------
+    // عناصر الجداول
+    // ---------------------------------------------------------------------
+
+    private static Grid CreateRow(double[] widths)
+    {
+        var row = new Grid
+        {
+            Padding = new Thickness(6, 6),
+            ColumnSpacing = 2,
+            FlowDirection = FlowDirection.RightToLeft
+        };
+
+        foreach (double width in widths)
+        {
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(width) });
+        }
+
+        return row;
+    }
+
+    private static void AddColumns(Grid row, View[] views)
+    {
+        for (int column = 0; column < views.Length; column++)
+        {
+            Grid.SetColumn(views[column], column);
+            row.Children.Add(views[column]);
+        }
+    }
+
+    private static Label MakeCell(string text) => new()
+    {
+        Text = text,
+        FontSize = 11,
+        TextColor = Color.FromArgb("#48546B"),
+        HorizontalTextAlignment = TextAlignment.Center,
+        VerticalTextAlignment = TextAlignment.Center,
+        LineBreakMode = LineBreakMode.TailTruncation
+    };
+
+    private static Entry MakeCellEntry(string text, Keyboard keyboard, EventHandler<TextChangedEventArgs>? handler)
+    {
+        var entry = new Entry
+        {
+            Text = text,
+            FontSize = 11,
+            Keyboard = keyboard,
+            BackgroundColor = Colors.Transparent,
+            TextColor = Color.FromArgb("#34445C"),
+            HeightRequest = 34,
+            HorizontalTextAlignment = TextAlignment.Center
+        };
+
+        if (handler is not null)
+        {
+            entry.TextChanged += handler;
+        }
+
+        return entry;
+    }
+
+    private static Button CreateDeleteButton() => new()
+    {
+        Text = "✕",
+        FontSize = 11,
+        BackgroundColor = Color.FromArgb("#D9534F"),
+        TextColor = Colors.White,
+        Padding = 0,
+        WidthRequest = 36,
+        HeightRequest = 32,
+        CornerRadius = 6
+    };
+
+    // ---------------------------------------------------------------------
+    // الحسابات
+    // ---------------------------------------------------------------------
+
+    private void OnInvoiceInputChanged(object? sender, EventArgs e) => Recalculate();
+
+    private void Recalculate()
+    {
+        if (!_ready || ItemsDiscountLabel is null)
+        {
+            return;
+        }
+
+        _subtotal = 0;
+        _itemDiscount = 0;
+
+        foreach (PurchaseLine line in _lines)
+        {
+            double quantity = ParseAmount(line.QuantityEntry.Text);
+            double price = ParseAmount(line.PriceEntry.Text);
+            double discountPercent = Math.Clamp(ParseAmount(line.DiscountPercentEntry.Text), 0, 100);
+
+            double gross = quantity * price;
+            double discount = gross * discountPercent / 100d;
+            double net = gross - discount;
+
+            line.GrossLabel.Text = FormatAmount(gross);
+            line.DiscountAmountLabel.Text = FormatAmount(discount);
+            line.NetLabel.Text = FormatAmount(net);
+
+            _subtotal += gross;
+            _itemDiscount += discount;
+        }
+
+        double invoiceDiscountPercent = Math.Clamp(ParseAmount(DiscountPercentEntry.Text), 0, 100);
+        _invoiceDiscount = (_subtotal - _itemDiscount) * invoiceDiscountPercent / 100d;
+
+        double beforeVat = _subtotal - _itemDiscount - _invoiceDiscount;
+        double vatPercent = VatCheckBox.IsChecked ? Math.Max(0, ParseAmount(VatPercentEntry.Text)) : 0;
+        _vat = beforeVat * vatPercent / 100d;
+        _total = beforeVat + _vat;
+
+        _paid = 0;
+        foreach (PaymentLine payment in _payments)
+        {
+            _paid += Math.Max(0, ParseAmount(payment.AmountEntry.Text));
+        }
+
+        _remaining = _total - _paid;
+
+        ItemsDiscountLabel.Text = FormatAmount(_itemDiscount);
+        ExtraDiscountValueLabel.Text = FormatAmount(_invoiceDiscount);
+        SubtotalLabel.Text = FormatAmount(_subtotal);
+        VatValueLabel.Text = FormatAmount(_vat);
+        GrandTotalLabel.Text = FormatAmount(_total);
+
+        InvoiceTotalLabel.Text = FormatAmount(_total);
+        PaidTotalLabel.Text = FormatAmount(_paid);
+        InvoiceRemainingLabel.Text = FormatAmount(_remaining);
+        SummaryGrandTotalLabel.Text = FormatAmount(_total);
+    }
+
+    // ---------------------------------------------------------------------
+    // الحفظ والتنقل
+    // ---------------------------------------------------------------------
+
+    private async void OnAddNewClicked(object? sender, EventArgs e)
+    {
+        if (_lines.Count > 0)
+        {
+            bool proceed = await DisplayAlertAsync(
+                "فاتورة جديدة",
+                "سيتم إلغاء البنود المسجلة في الفاتورة الحالية. هل تريد المتابعة؟",
+                "نعم",
+                "لا");
+
+            if (!proceed)
+            {
+                return;
+            }
+        }
+
+        await ResetFormAsync();
+    }
+
+    private async void OnShowAllClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+
+    private async void OnSaveClicked(object? sender, EventArgs e)
+    {
+        if (await SaveInvoiceAsync())
+        {
+            await Shell.Current.GoToAsync("..");
+        }
+    }
+
+    private async void OnSaveAndContinueClicked(object? sender, EventArgs e)
+    {
+        if (await SaveInvoiceAsync())
+        {
+            await ResetFormAsync();
+        }
+    }
+
+    private async void OnCancelClicked(object? sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync("..");
+    }
+
+    private async Task<bool> SaveInvoiceAsync()
+    {
+        if (_lines.Count == 0)
+        {
+            await DisplayAlertAsync("لا توجد بنود", "أضف صنفاً واحداً على الأقل إلى الفاتورة قبل الحفظ.", "موافق");
+            return false;
+        }
+
+        Recalculate();
+
+        if (_invoiceNumber is null)
+        {
+            await LoadInvoiceNumberAsync();
+        }
+
+        var invoice = new PurchaseInvoice
+        {
+            InvoiceNumber = _invoiceNumber!.Value,
+            InvoiceDate = (InvoiceDatePicker.Date ?? DateTime.Now).ToString("yyyy-MM-dd"),
+            Store = StorePicker.SelectedItem?.ToString() ?? "Main Store",
+            InvoiceType = InvoiceTypePicker.SelectedItem?.ToString() ?? "نقدي",
+            Supplier = string.IsNullOrWhiteSpace(SupplierEntry.Text) ? "مورد نقدي" : SupplierEntry.Text.Trim(),
+            Rep = string.IsNullOrWhiteSpace(RepEntry.Text) ? "-- اختر --" : RepEntry.Text.Trim(),
+            Driver = string.IsNullOrWhiteSpace(DriverEntry.Text) ? "-- اختر --" : DriverEntry.Text.Trim(),
+            PriceList = PriceListPicker.SelectedItem?.ToString() ?? "-- اختر --",
+            ApproveJournal = ApproveJournalPicker.SelectedItem?.ToString() ?? "معتمد",
+            ApproveStoreMove = ApproveStorePicker.SelectedItem?.ToString() ?? "معتمد",
+            Subtotal = _subtotal,
+            ItemDiscount = _itemDiscount,
+            InvoiceDiscount = _invoiceDiscount,
+            Vat = _vat,
+            Total = _total,
+            Paid = _paid,
+            Remaining = _remaining,
+            DiscountReason = DiscountReasonEntry.Text?.Trim() ?? string.Empty
+        };
+
+        List<PurchaseInvoiceItem> items = _lines
+            .Select(line => new PurchaseInvoiceItem
+            {
+                Barcode = line.Product.Barcode,
+                Name = line.Product.Name,
+                Unit = line.Product.Unit,
+                Quantity = ParseAmount(line.QuantityEntry.Text),
+                Price = ParseAmount(line.PriceEntry.Text),
+                DiscountPercent = Math.Clamp(ParseAmount(line.DiscountPercentEntry.Text), 0, 100),
+                DiscountAmount = Math.Max(0, ParseAmount(line.QuantityEntry.Text)) *
+                                 ParseAmount(line.PriceEntry.Text) *
+                                 Math.Clamp(ParseAmount(line.DiscountPercentEntry.Text), 0, 100) / 100d,
+                Total = ParseAmount(line.NetLabel.Text),
+                Note = line.NoteEntry.Text?.Trim() ?? string.Empty
+            })
+            .ToList();
+
+        try
+        {
+            await PurchaseInvoiceRepository.Instance.SaveInvoiceAsync(invoice, items);
+        }
+        catch (Exception)
+        {
+            await DisplayAlertAsync("خطأ في الحفظ", "تعذر حفظ الفاتورة على هذا الجهاز، حاول مرة أخرى.", "موافق");
+            return false;
+        }
+
+        await DisplayAlertAsync(
+            "تم الحفظ",
+            $"تم حفظ فاتورة المشتريات رقم {invoice.InvoiceNumber} بإجمالي {FormatAmount(invoice.Total)}.",
+            "موافق");
+
+        return true;
+    }
+
+    private async Task ResetFormAsync()
+    {
+        ItemsContainer.Children.Clear();
+        _lines.Clear();
+        EmptyItemsLabel.IsVisible = true;
+
+        PaymentsContainer.Children.Clear();
+        _payments.Clear();
+        AddPaymentRow();
+
+        BarcodeEntry.Text = string.Empty;
+        ScanStatusLabel.TextColor = Color.FromArgb("#7A8299");
+        ScanStatusLabel.Text = "المسح المتصل يضيف عدة أصناف متتالية حتى تضغط «تم ✓ رجوع»";
+        _scanSessionCount = 0;
+        DiscountPercentEntry.Text = "0";
+        DiscountReasonEntry.Text = string.Empty;
+        VatCheckBox.IsChecked = true;
+        VatPercentEntry.Text = "14";
+        SupplierEntry.Text = "مورد نقدي";
+        RepEntry.Text = string.Empty;
+        DriverEntry.Text = string.Empty;
+        InvoiceDatePicker.Date = DateTime.Now;
+        StorePicker.SelectedIndex = 0;
+        InvoiceTypePicker.SelectedIndex = 0;
+        PriceListPicker.SelectedIndex = 0;
+        ApproveJournalPicker.SelectedIndex = 0;
+        ApproveStorePicker.SelectedIndex = 0;
+
+        _invoiceNumber = null;
+        await LoadInvoiceNumberAsync();
+        Recalculate();
+    }
+
+    // ---------------------------------------------------------------------
+    // أدوات
+    // ---------------------------------------------------------------------
+
+    private static double ParseAmount(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return 0;
+        }
+
+        if (double.TryParse(text, NumberStyles.Number, CultureInfo.InvariantCulture, out double value))
+        {
+            return value;
+        }
+
+        if (double.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out value))
+        {
+            return value;
+        }
+
+        return 0;
+    }
+
+    private static string FormatAmount(double amount) =>
+        amount.ToString("0.00", CultureInfo.InvariantCulture);
+}

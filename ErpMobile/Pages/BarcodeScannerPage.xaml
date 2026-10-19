@@ -8,7 +8,7 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#111827">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
         <Grid
             Padding="16,12"
             ColumnDefinitions="*,Auto"
@@ -21,17 +21,48 @@
                 VerticalOptions="Center" />
             <Button
                 Grid.Column="1"
-                Text="إلغاء"
+                Text="تم ✓ رجوع"
                 Padding="12,6"
                 CornerRadius="10"
-                BackgroundColor="#FFFFFF"
-                TextColor="#173B70"
+                BackgroundColor="#25A36F"
+                TextColor="White"
+                FontAttributes="Bold"
                 Clicked="OnCancelClicked" />
+        </Grid>
+
+        <!-- شريط حالة المسح المتصل -->
+        <Grid
+            Grid.Row="1"
+            Padding="16,8"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="10"
+            BackgroundColor="#0F2E5C">
+            <Border
+                Padding="10,4"
+                BackgroundColor="#25A36F"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 10"
+                VerticalOptions="Center">
+                <Label
+                    x:Name="ScanCountLabel"
+                    Text="الأصناف المضافة: 0"
+                    FontSize="12"
+                    FontAttributes="Bold"
+                    TextColor="White" />
+            </Border>
+            <Label
+                Grid.Column="1"
+                x:Name="ScanMessageLabel"
+                Text="امسح أول صنف — يستمر المسح حتى تضغط «تم»"
+                FontSize="12"
+                TextColor="#BFD4F2"
+                VerticalOptions="Center"
+                LineBreakMode="TailTruncation" />
         </Grid>
 
         <zxing:CameraBarcodeReaderView
             x:Name="CameraReader"
-            Grid.Row="1"
+            Grid.Row="2"
             IsDetecting="True"
             BarcodesDetected="OnBarcodesDetected" />
     </Grid>

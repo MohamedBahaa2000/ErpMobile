@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.PartyFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <ContentPage.Resources>
+        <Style x:Key="CaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#555B72" />
+        </Style>
+        <Style x:Key="FieldStyle" TargetType="Entry">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#192D4A" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="HeightRequest" Value="44" />
+            <Setter Property="HorizontalTextAlignment" Value="End" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid
+            Padding="16,12"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="10"
+            BackgroundColor="#173B70">
+            <Button
+                Text="✕"
+                WidthRequest="44"
+                HeightRequest="36"
+                Padding="0"
+                CornerRadius="8"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                FontAttributes="Bold"
+                Clicked="OnCancelClicked" />
+            <Label
+                Grid.Column="1"
+                x:Name="FormTitleLabel"
+                Text="إضافة عميل"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="14" Spacing="12">
+
+                <Border
+                    Padding="12"
+                    BackgroundColor="White"
+                    Stroke="#D5D4EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="البيانات الأساسية" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="الاسم *" Style="{StaticResource CaptionStyle}" />
+                            <Border Padding="8,0" BackgroundColor="#FFF8DC" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                <Entry x:Name="NameEntry" Placeholder="اسم العميل / المورد" Style="{StaticResource FieldStyle}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="الاسم أجنبي" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="EnglishNameEntry" Placeholder="Optional" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="الكود" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F0F0FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="CodeEntry" Placeholder="يُولَّد تلقائياً" IsEnabled="False" Style="{StaticResource FieldStyle}" TextColor="#7A8299" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                                <Label Text="الموبايل" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="MobileEntry" Placeholder="01xxxxxxxxx" Keyboard="Telephone" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                                <Label Text="تليفون" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="PhoneEntry" Keyboard="Telephone" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                                <Label Text="الرقم الضريبي" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="TaxNumberEntry" Keyboard="Numeric" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                <Label Text="السجل التجاري" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="CommercialRegEntry" Keyboard="Numeric" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                                <Label Text="نوع السداد" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Picker x:Name="PaymentKindPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                                <Label Text="رصيد أول المدة" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="OpeningBalanceEntry" Text="0.00" Keyboard="Numeric" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="4" Grid.ColumnSpan="2" Spacing="4">
+                                <Label Text="البريد الإلكتروني" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="EmailEntry" Keyboard="Email" Style="{StaticResource FieldStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="5" Grid.ColumnSpan="2" Spacing="4">
+                                <Label Text="العنوان" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,4" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Editor x:Name="AddressEditor" FontSize="13" TextColor="#192D4A" HeightRequest="64" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="ملاحظات" Style="{StaticResource CaptionStyle}" />
+                            <Border Padding="8,4" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                <Editor x:Name="NotesEditor" FontSize="13" TextColor="#192D4A" HeightRequest="60" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="8">
+                    <Button
+                        Text="حفظ - إضافة جديد"
+                        HeightRequest="48"
+                        CornerRadius="8"
+                        BackgroundColor="#E99A2D"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Clicked="OnSaveAndNewClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="حفظ - إغلاق"
+                        HeightRequest="48"
+                        CornerRadius="8"
+                        BackgroundColor="#25A36F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Clicked="OnSaveClicked" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Text="إلغاء"
+                        HeightRequest="44"
+                        CornerRadius="8"
+                        BackgroundColor="#173B70"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnCancelClicked" />
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

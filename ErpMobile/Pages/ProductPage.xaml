@@ -3,106 +3,331 @@
     x:Class="ErpMobile.Pages.ProductPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="إضافة منتج"
+    Title="إضافة صنف"
     FlowDirection="RightToLeft"
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F4F7FC">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20,28" Spacing="18">
-            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                <VerticalStackLayout Spacing="4">
-                    <Label Text="المنتجات" FontSize="14" TextColor="#748198" />
-                    <Label Text="إضافة منتج جديد" FontSize="25" FontAttributes="Bold" TextColor="#173B70" />
-                </VerticalStackLayout>
-                <Button
-                    Grid.Column="1"
-                    Text="رجوع"
-                    HeightRequest="42"
-                    Padding="14,6"
-                    CornerRadius="12"
+    <ContentPage.Resources>
+        <Style x:Key="ErpCaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#555B72" />
+        </Style>
+        <Style x:Key="ErpEntryStyle" TargetType="Entry">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="#192D4A" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="HeightRequest" Value="44" />
+            <Setter Property="HorizontalTextAlignment" Value="End" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- شريط عنوان النافذة (مثل نافذة إضافة صنف في ERP) -->
+        <Grid
+            Padding="16,12"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="10"
+            BackgroundColor="#173B70">
+            <Button
+                Text="✕"
+                WidthRequest="44"
+                HeightRequest="36"
+                Padding="0"
+                CornerRadius="8"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                FontAttributes="Bold"
+                Clicked="OnCancelClicked" />
+            <Label
+                Grid.Column="1"
+                Text="إضافة صنف"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="14,14" Spacing="12">
+
+                <Label
+                    Text="* بعض التفاصيل لا يمكن تغييرها بعد استخدام الصنف في النظام"
+                    FontSize="11"
+                    TextColor="#D9534F" />
+
+                <!-- بيانات الصنف الأساسية -->
+                <Border
+                    Padding="12"
                     BackgroundColor="White"
-                    TextColor="#173B70"
-                    Clicked="OnCancelClicked" />
-            </Grid>
+                    Stroke="#D5D4EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="بيانات الصنف" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
 
-            <Border
-                Padding="20"
-                BackgroundColor="White"
-                Stroke="#E5EAF2"
-                StrokeThickness="1"
-                StrokeShape="RoundRectangle 20">
-                <VerticalStackLayout Spacing="14">
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="اسم المنتج" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
-                        <Entry
-                            x:Name="NameEntry"
-                            Placeholder="مثال: منتج جديد"
-                            HeightRequest="48"
-                            BackgroundColor="#F7F8FB"
-                            TextColor="#192D4A" />
-                    </VerticalStackLayout>
-
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="الباركود" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="اسم الصنف (عربي)" Style="{StaticResource ErpCaptionStyle}" />
                             <Entry
-                                x:Name="BarcodeEntry"
-                                Placeholder="حدد الحقل ثم امسح بجهاز USB أو أدخله يدوياً"
-                                HeightRequest="48"
-                                BackgroundColor="#F7F8FB"
-                                TextColor="#192D4A" />
-                            <Button
-                                Grid.Column="1"
-                                Text="مسح بالكاميرا"
-                                HeightRequest="48"
-                                Padding="12,8"
-                                CornerRadius="12"
-                                BackgroundColor="#36BFC5"
-                                TextColor="White"
-                                FontSize="12"
-                                IsVisible="{OnPlatform WinUI=False, Default=True}"
-                                Clicked="OnScanBarcodeClicked" />
+                                x:Name="NameEntry"
+                                Placeholder="أدخل اسم الصنف"
+                                BackgroundColor="#FFF8DC"
+                                TextColor="#192D4A"
+                                FontSize="14"
+                                HeightRequest="46" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="10">
+
+                            <!-- كود صنف + مسح -->
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="كود صنف (الباركود)" Style="{StaticResource ErpCaptionStyle}" />
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <Border Padding="8,0" BackgroundColor="#F2FFD8" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Entry x:Name="BarcodeEntry" Placeholder="امسح أو أدخل الكود" Style="{StaticResource ErpEntryStyle}" TextChanged="OnPriceFieldsChanged" />
+                                    </Border>
+                                    <Button
+                                        Grid.Column="1"
+                                        Text="مسح"
+                                        WidthRequest="60"
+                                        HeightRequest="44"
+                                        Padding="8,4"
+                                        CornerRadius="6"
+                                        BackgroundColor="#36BFC5"
+                                        TextColor="White"
+                                        FontSize="12"
+                                        Clicked="OnScanBarcodeClicked" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="كود مساعد" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="HelperCodeEntry" Placeholder="اختياري" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                                <Label Text="الاسم أجنبي (إنجليزي)" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="EnglishNameEntry" Placeholder="Optional" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                                <Label Text="الوحدة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Picker x:Name="UnitPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="4">
+                                <Label Text="سعر التجزئة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#FFF8DC" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="PriceEntry" Placeholder="0.00" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" TextChanged="OnPriceFieldsChanged" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="4">
+                                <Label Text="سعر الجملة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="WholesalePriceEntry" Placeholder="0.00" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" TextChanged="OnPriceFieldsChanged" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- منشأ الصنف -->
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="4">
+                                <Label Text="منشأ الصنف" Style="{StaticResource ErpCaptionStyle}" />
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Picker x:Name="OriginPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                    </Border>
+                                    <Button Grid.Column="1" Text="＋" WidthRequest="44" HeightRequest="44" Padding="0" CornerRadius="6" BackgroundColor="#25A36F" TextColor="White" Clicked="OnAddOriginClicked" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <!-- نوع الصنف -->
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="4">
+                                <Label Text="نوع الصنف" Style="{StaticResource ErpCaptionStyle}" />
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Picker x:Name="CategoryPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                    </Border>
+                                    <Button Grid.Column="1" Text="＋" WidthRequest="44" HeightRequest="44" Padding="0" CornerRadius="6" BackgroundColor="#25A36F" TextColor="White" Clicked="OnAddCategoryClicked" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <!-- الشركة المصنعة -->
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="0" Spacing="4">
+                                <Label Text="الشركة المصنعة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                                    <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                        <Picker x:Name="ManufacturerPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                    </Border>
+                                    <Button Grid.Column="1" Text="＋" WidthRequest="44" HeightRequest="44" Padding="0" CornerRadius="6" BackgroundColor="#25A36F" TextColor="White" Clicked="OnAddManufacturerClicked" />
+                                </Grid>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="4" Grid.Column="1" Spacing="4">
+                                <Label Text="كود الصنف في الشركة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="CompanyCodeEntry" Placeholder="اختياري" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="5" Grid.Column="0" Spacing="4">
+                                <Label Text="طريقة احتساب التكلفة" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Picker x:Name="CostMethodPicker" FontSize="13" TextColor="#34445C" HeightRequest="44" BackgroundColor="Transparent" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Row="5" Grid.Column="1" Spacing="4">
+                                <Label Text="قيمة التكلفة النهائية" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="CostValueEntry" Placeholder="0.00" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="ملاحظة" Style="{StaticResource ErpCaptionStyle}" />
+                            <Border Padding="8,4" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                <Editor x:Name="NotesEditor" Placeholder="اختياري" FontSize="13" TextColor="#192D4A" HeightRequest="70" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- خصائص الصنف (مربعات اختيار) -->
+                <Border
+                    Padding="12"
+                    BackgroundColor="White"
+                    Stroke="#D5D4EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="خصائص الصنف" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="4" RowSpacing="2" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                            <CheckBox x:Name="IsStockCheck" IsChecked="True" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="مخزون" FontSize="13" TextColor="#34445C" VerticalOptions="Center" />
+                            <CheckBox Grid.Row="1" x:Name="IsTaxableCheck" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="ضريبة قيمة مضافة" FontSize="13" TextColor="#34445C" VerticalOptions="Center" />
+                            <CheckBox Grid.Row="2" IsChecked="True" IsEnabled="False" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Row="2" Grid.Column="1" Text="سعر بيع" FontSize="13" TextColor="#8A91A6" VerticalOptions="Center" />
+                            <CheckBox Grid.Row="3" IsChecked="True" IsEnabled="False" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Row="3" Grid.Column="1" Text="رمز شفارة (باركود)" FontSize="13" TextColor="#8A91A6" VerticalOptions="Center" />
+                            <CheckBox Grid.Row="4" IsEnabled="False" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Row="4" Grid.Column="1" Text="تاريخ صلاحية" FontSize="13" TextColor="#8A91A6" VerticalOptions="Center" />
+                            <CheckBox Grid.Row="5" IsEnabled="False" Color="#25A36F" VerticalOptions="Center" />
+                            <Label Grid.Row="5" Grid.Column="1" Text="ألوان ومقاسات" FontSize="13" TextColor="#8A91A6" VerticalOptions="Center" />
                         </Grid>
                     </VerticalStackLayout>
+                </Border>
 
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="سعر البيع" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
-                        <Entry
-                            x:Name="PriceEntry"
-                            Placeholder="0.00"
-                            Keyboard="Numeric"
-                            HeightRequest="48"
-                            BackgroundColor="#F7F8FB"
-                            TextColor="#192D4A" />
+                <!-- جدول الوحدات (بنود الصنف) -->
+                <Border
+                    Padding="12"
+                    BackgroundColor="White"
+                    Stroke="#D5D4EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="وحدات / بنود الصنف" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                        <Grid Padding="8,6" ColumnDefinitions="70,110,90,90,60" BackgroundColor="#E9E9F0" ColumnSpacing="4">
+                            <Label Text="الوحدة" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="الباركود" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="سعر التجزئة" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="3" Text="سعر الجملة" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="4" Text="إيقاف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                        </Grid>
+                        <Grid Padding="8,6" ColumnDefinitions="70,110,90,90,60" ColumnSpacing="4">
+                            <Label x:Name="UnitCellLabel" Text="قطعة" FontSize="12" TextColor="#34445C" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="1" x:Name="BarcodeCellLabel" Text="—" FontSize="12" TextColor="#34445C" HorizontalTextAlignment="Center" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                            <Label Grid.Column="2" x:Name="PriceCellLabel" Text="0.00" FontSize="12" TextColor="#34445C" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <Label Grid.Column="3" x:Name="WholesaleCellLabel" Text="0.00" FontSize="12" TextColor="#34445C" HorizontalTextAlignment="Center" VerticalOptions="Center" />
+                            <CheckBox Grid.Column="4" IsEnabled="False" Color="#D9534F" VerticalOptions="Center" />
+                        </Grid>
                     </VerticalStackLayout>
+                </Border>
 
-                    <VerticalStackLayout Spacing="5">
-                        <Label Text="وحدة القياس" FontSize="13" FontAttributes="Bold" TextColor="#34445C" />
-                        <Entry
-                            x:Name="UnitEntry"
-                            Text="قطعة"
-                            HeightRequest="48"
-                            BackgroundColor="#F7F8FB"
-                            TextColor="#192D4A" />
+                <!-- قسم الخصم -->
+                <Border
+                    Padding="12"
+                    BackgroundColor="White"
+                    Stroke="#D5D4EC"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="الخصم" FontSize="15" FontAttributes="Bold" TextColor="#34394F" />
+                        <HorizontalStackLayout Spacing="8">
+                            <CheckBox Color="#25A36F" VerticalOptions="Center" />
+                            <Label Text="إجمالي بالخصم" FontSize="13" TextColor="#34445C" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowDefinitions="Auto,Auto" RowSpacing="10">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="قيمة الخصم" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="DiscountValueEntry" Text="0.00" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label Text="قيمة نسبة الخصم %" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="DiscountPercentEntry" Text="0" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.ColumnSpan="2" Spacing="4">
+                                <Label Text="خصم لجميع العملاء عند البيع" Style="{StaticResource ErpCaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F7F8FB" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry x:Name="AllCustomersDiscountEntry" Text="0" Keyboard="Numeric" Style="{StaticResource ErpEntryStyle}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
                     </VerticalStackLayout>
+                </Border>
 
+                <!-- أزرار الحفظ -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="8">
                     <Button
-                        Text="حفظ المنتج"
-                        HeightRequest="52"
-                        CornerRadius="14"
+                        Text="حفظ - إضافة جديد"
+                        HeightRequest="48"
+                        CornerRadius="8"
+                        BackgroundColor="#E99A2D"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Clicked="OnSaveAndNewClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="حفظ - إضافة وإغلاق"
+                        HeightRequest="48"
+                        CornerRadius="8"
+                        BackgroundColor="#25A36F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Clicked="OnSaveClicked" />
+                    <Button
+                        Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Text="إغلاق ✕"
+                        HeightRequest="44"
+                        CornerRadius="8"
                         BackgroundColor="#173B70"
                         TextColor="White"
                         FontAttributes="Bold"
-                        Clicked="OnSaveClicked" />
-                </VerticalStackLayout>
-            </Border>
+                        Clicked="OnCancelClicked" />
+                </Grid>
 
-            <Label
-                Text="سيتم حفظ المنتجات محلياً على هذا الجهاز، ويمكن استخدامها دون إنترنت."
-                FontSize="12"
-                TextColor="#748198"
-                HorizontalTextAlignment="Center" />
-        </VerticalStackLayout>
-    </ScrollView>
+                <Label
+                    Text="سيتم حفظ الأصناف محلياً على هذا الجهاز، ويمكن استخدامها دون إنترنت."
+                    FontSize="11"
+                    TextColor="#748198"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

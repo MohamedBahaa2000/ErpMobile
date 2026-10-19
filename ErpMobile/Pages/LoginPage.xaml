@@ -3,6 +3,7 @@
     x:Class="ErpMobile.Pages.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:ErpMobile.Pages"
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F3F6FC">
 
@@ -57,11 +58,7 @@
                         <Border.Shadow>
                             <Shadow Brush="#253B65" Offset="0,8" Radius="20" Opacity="0.18" />
                         </Border.Shadow>
-                        <Image
-                            Source="select_erp_logo.svg"
-                            WidthRequest="220"
-                            HeightRequest="64"
-                            Aspect="AspectFit" />
+                        <local:SelectLogoView FontSize="34" />
                     </Border>
 
                     <Label

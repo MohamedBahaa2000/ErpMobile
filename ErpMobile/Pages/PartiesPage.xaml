@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.PartiesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Name="ThisPage"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F4F7FC">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- شريط علوي -->
+        <Grid
+            Padding="16,12"
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="10"
+            BackgroundColor="#173B70">
+            <Button
+                Text="✕"
+                WidthRequest="44"
+                HeightRequest="36"
+                Padding="0"
+                CornerRadius="8"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                FontAttributes="Bold"
+                Clicked="OnCloseClicked" />
+            <Label
+                Grid.Column="1"
+                x:Name="TitleLabel"
+                Text="العملاء"
+                FontSize="17"
+                FontAttributes="Bold"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
+
+        <!-- بحث + إضافة -->
+        <Grid
+            Grid.Row="1"
+            Padding="14,10"
+            ColumnDefinitions="*,Auto"
+            ColumnSpacing="10">
+            <Border
+                Padding="10,0"
+                BackgroundColor="White"
+                Stroke="#D5D4EC"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 10">
+                <Entry
+                    x:Name="SearchEntry"
+                    Placeholder="ابحث بالاسم أو الكود أو الموبايل..."
+                    FontSize="13"
+                    TextColor="#192D4A"
+                    PlaceholderColor="#9AA4B8"
+                    HeightRequest="44"
+                    TextChanged="OnSearchChanged" />
+            </Border>
+            <Button
+                Grid.Column="1"
+                Text="＋ إضافة"
+                HeightRequest="44"
+                Padding="14,4"
+                CornerRadius="10"
+                BackgroundColor="#25A36F"
+                TextColor="White"
+                FontAttributes="Bold"
+                Clicked="OnAddClicked" />
+        </Grid>
+
+        <!-- القائمة -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="14,4" Spacing="10">
+                <Label
+                    x:Name="CountLabel"
+                    Text=""
+                    FontSize="12"
+                    TextColor="#8A91A6" />
+                <VerticalStackLayout
+                    x:Name="ListContainer"
+                    Spacing="10" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

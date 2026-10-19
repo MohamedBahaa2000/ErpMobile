@@ -3,58 +3,49 @@
     x:Class="ErpMobile.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="Dashboard"
+    xmlns:local="clr-namespace:ErpMobile.Pages"
+    Title="لوحة التحكم"
+    FlowDirection="RightToLeft"
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F4F7FC">
 
     <ScrollView>
-        <VerticalStackLayout Padding="22,28" Spacing="22">
+        <VerticalStackLayout Padding="18,22" Spacing="18">
 
+            <!-- الترويسة: الشعار + الترحيب -->
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
                 <VerticalStackLayout Spacing="4" VerticalOptions="Center">
                     <Label
-                        Text="Welcome back"
+                        Text="أهلاً بعودتك"
                         FontSize="14"
                         TextColor="#748198" />
                     <Label
-                        Text="Admin"
-                        FontSize="27"
+                        Text="المسؤول"
+                        FontSize="26"
                         FontAttributes="Bold"
                         TextColor="#173B70" />
                 </VerticalStackLayout>
-
-                <Border
+                <local:SelectLogoView
                     Grid.Column="1"
-                    WidthRequest="48"
-                    HeightRequest="48"
-                    BackgroundColor="White"
-                    Stroke="#E5EAF2"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 16"
-                    VerticalOptions="Center">
-                    <Label
-                        Text="ERP"
-                        FontSize="13"
-                        FontAttributes="Bold"
-                        TextColor="#173B70"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center" />
-                </Border>
+                    FontSize="22"
+                    VerticalOptions="Center" />
             </Grid>
 
+            <!-- بطاقة مبيعات اليوم -->
             <Border
                 Padding="20"
                 BackgroundColor="#173B70"
                 StrokeThickness="0"
-                StrokeShape="RoundRectangle 22">
+                StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="8">
                     <Label
-                        Text="Today's sales"
+                        Text="مبيعات اليوم"
                         FontSize="14"
                         TextColor="#D5E1F2" />
                     <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                         <Label
-                            Text="$12,450"
+                            x:Name="TodaySalesLabel"
+                            Text="0.00"
                             FontSize="30"
                             FontAttributes="Bold"
                             TextColor="White"
@@ -67,127 +58,56 @@
                             StrokeShape="RoundRectangle 12"
                             VerticalOptions="Center">
                             <Label
-                                Text="↑ 12.8%"
+                                x:Name="TodayInvoicesLabel"
+                                Text="0 فاتورة"
                                 FontSize="12"
                                 FontAttributes="Bold"
                                 TextColor="#D8F5E5" />
                         </Border>
                     </Grid>
                     <Label
-                        Text="Compared with last month"
+                        x:Name="OutstandingLabel"
+                        Text="إجمالي المتبقي: 0.00"
                         FontSize="12"
                         TextColor="#D5E1F2" />
                 </VerticalStackLayout>
             </Border>
 
+            <!-- وحدات النظام -->
             <VerticalStackLayout Spacing="12">
                 <Label
-                    Text="Overview"
+                    Text="وحدات النظام"
                     FontSize="19"
                     FontAttributes="Bold"
                     TextColor="#192D4A" />
-
                 <Grid
+                    x:Name="ModulesGrid"
                     ColumnDefinitions="*,*"
                     RowDefinitions="Auto,Auto"
-                    ColumnSpacing="12"
-                    RowSpacing="12">
-                    <Border
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Padding="16"
-                        BackgroundColor="White"
-                        Stroke="#E5EAF2"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 18">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Orders" FontSize="13" TextColor="#748198" />
-                            <Label Text="128" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
-                            <Label Text="18 pending" FontSize="12" TextColor="#D98A16" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="White"
-                        Stroke="#E5EAF2"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 18">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Customers" FontSize="13" TextColor="#748198" />
-                            <Label Text="56" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
-                            <Label Text="Active customers" FontSize="12" TextColor="#748198" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        Padding="16"
-                        BackgroundColor="White"
-                        Stroke="#E5EAF2"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 18">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Products" FontSize="13" TextColor="#748198" />
-                            <Label Text="342" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
-                            <Label Text="In inventory" FontSize="12" TextColor="#748198" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="White"
-                        Stroke="#E5EAF2"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 18">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Outstanding" FontSize="13" TextColor="#748198" />
-                            <Label Text="12" FontSize="24" FontAttributes="Bold" TextColor="#192D4A" />
-                            <Label Text="Invoices to collect" FontSize="12" TextColor="#748198" />
-                        </VerticalStackLayout>
-                    </Border>
-                </Grid>
+                    ColumnSpacing="10"
+                    RowSpacing="10" />
             </VerticalStackLayout>
 
+            <!-- إجراءات سريعة -->
             <VerticalStackLayout Spacing="12">
                 <Label
-                    Text="Quick actions"
+                    Text="إجراءات سريعة"
                     FontSize="19"
                     FontAttributes="Bold"
                     TextColor="#192D4A" />
-                <Grid
-                    ColumnDefinitions="*,*"
-                    RowDefinitions="Auto,Auto"
-                    ColumnSpacing="12"
-                    RowSpacing="10">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12" RowDefinitions="Auto" RowSpacing="12">
                     <Button
-                        Text="New invoice"
+                        Text="فاتورة جديدة"
                         HeightRequest="50"
                         Padding="10,12"
                         CornerRadius="14"
-                        BackgroundColor="#173B70"
+                        BackgroundColor="#E1523D"
                         TextColor="White"
                         FontAttributes="Bold"
                         Clicked="OnNewInvoiceClicked" />
                     <Button
                         Grid.Column="1"
-                        Text="Add customer"
-                        HeightRequest="50"
-                        Padding="10,12"
-                        CornerRadius="14"
-                        BackgroundColor="White"
-                        BorderColor="#DCE3ED"
-                        BorderWidth="1"
-                        TextColor="#173B70"
-                        FontAttributes="Bold" />
-                    <Button
-                        Grid.Row="1"
-                        Text="Add product"
+                        Text="إضافة منتج"
                         HeightRequest="50"
                         Padding="10,12"
                         CornerRadius="14"
@@ -200,45 +120,127 @@
                 </Grid>
             </VerticalStackLayout>
 
+            <!-- تحليلات -->
             <VerticalStackLayout Spacing="12">
                 <Label
-                    Text="Recent orders"
+                    Text="التحليلات"
                     FontSize="19"
                     FontAttributes="Bold"
                     TextColor="#192D4A" />
 
+                <!-- مؤشرات سريعة -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowSpacing="10" RowDefinitions="Auto,Auto">
+                    <Border
+                        Padding="14,12"
+                        BackgroundColor="#FFF4E8"
+                        Stroke="#F5C89A"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="💰 مبيعات" FontSize="12" TextColor="#8A6A4A" />
+                            <Label x:Name="AnalyticsSalesLabel" Text="0.00" FontSize="20" FontAttributes="Bold" TextColor="#E1761B" />
+                            <Label x:Name="AnalyticsSalesCountLabel" Text="0 فاتورة" FontSize="11" TextColor="#B08A62" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border
+                        Grid.Column="1"
+                        Padding="14,12"
+                        BackgroundColor="#F0EFFC"
+                        Stroke="#C9C6EE"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🏷 الأصناف" FontSize="12" TextColor="#6B62A0" />
+                            <Label x:Name="AnalyticsProductsLabel" Text="0" FontSize="20" FontAttributes="Bold" TextColor="#6B62C7" />
+                            <Label x:Name="AnalyticsProductsValueLabel" Text="قيمة المخزون: 0.00" FontSize="11" TextColor="#948FC4" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border
+                        Grid.Row="1"
+                        Padding="14,12"
+                        BackgroundColor="#E9F8FD"
+                        Stroke="#A6E1F2"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="👥 العملاء" FontSize="12" TextColor="#4C8A9B" />
+                            <Label x:Name="AnalyticsCustomersLabel" Text="0" FontSize="20" FontAttributes="Bold" TextColor="#0E9BB8" />
+                            <Label x:Name="AnalyticsCustomersBalanceLabel" Text="أرصدة: 0.00" FontSize="11" TextColor="#7BB6C4" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="14,12"
+                        BackgroundColor="#EAF9F0"
+                        Stroke="#A8E3C4"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🚚 الموردين" FontSize="12" TextColor="#4A8A68" />
+                            <Label x:Name="AnalyticsSuppliersLabel" Text="0" FontSize="20" FontAttributes="Bold" TextColor="#12A15B" />
+                            <Label x:Name="AnalyticsSuppliersBalanceLabel" Text="أرصدة: 0.00" FontSize="11" TextColor="#7FC0A0" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- مبيعات آخر 7 أيام -->
                 <Border
-                    Padding="16,4"
+                    Padding="14"
                     BackgroundColor="White"
                     Stroke="#E5EAF2"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle 18">
-                    <VerticalStackLayout Spacing="0">
-                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="Invoice #INV-1024" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
-                                <Label Text="Today · 10:45 AM" FontSize="12" TextColor="#8995A7" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
-                                <Label Text="$2,450" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" HorizontalTextAlignment="End" />
-                                <Label Text="Paid" FontSize="12" TextColor="#248A58" HorizontalTextAlignment="End" />
-                            </VerticalStackLayout>
-                        </Grid>
-
-                        <BoxView HeightRequest="1" BackgroundColor="#EEF1F6" />
-
-                        <Grid Padding="0,12" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="Invoice #INV-1023" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
-                                <Label Text="Today · 09:20 AM" FontSize="12" TextColor="#8995A7" />
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="End">
-                                <Label Text="$860" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" HorizontalTextAlignment="End" />
-                                <Label Text="Pending" FontSize="12" TextColor="#D98A16" HorizontalTextAlignment="End" />
-                            </VerticalStackLayout>
-                        </Grid>
+                    StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="مبيعات آخر 7 أيام" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
+                        <Grid
+                            x:Name="SalesChartGrid"
+                            ColumnDefinitions="*,*,*,*,*,*,*"
+                            ColumnSpacing="8"
+                            RowDefinitions="Auto,Auto,Auto"
+                            RowSpacing="4"
+                            HeightRequest="140" />
+                        <Label x:Name="SalesChartTotalLabel" Text="" FontSize="11" TextColor="#8995A7" HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </Border>
+
+                <!-- الأصناف الأكثر مبيعاً -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#E5EAF2"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="الأصناف الأكثر مبيعاً" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
+                        <VerticalStackLayout x:Name="TopProductsContainer" Spacing="6" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- العملاء الأكثر شراءً -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#E5EAF2"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="العملاء الأكثر شراءً" FontSize="14" FontAttributes="Bold" TextColor="#192D4A" />
+                        <VerticalStackLayout x:Name="TopCustomersContainer" Spacing="6" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- أحدث الفواتير -->
+            <VerticalStackLayout Spacing="12">
+                <Label
+                    Text="أحدث الفواتير"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="#192D4A" />
+                <VerticalStackLayout
+                    x:Name="RecentInvoicesContainer"
+                    Spacing="0" />
             </VerticalStackLayout>
 
         </VerticalStackLayout>

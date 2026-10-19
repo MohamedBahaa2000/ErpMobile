@@ -54,6 +54,13 @@ public sealed class ProductRepository
             .FirstOrDefaultAsync();
     }
 
+    /// <summary>كل الأصناف — للتحليلات في الداشبورد.</summary>
+    public async Task<List<Product>> GetAllAsync()
+    {
+        await InitializeAsync();
+        return await _database.Table<Product>().OrderBy(item => item.Name).ToListAsync();
+    }
+
     private async Task InitializeAsync()
     {
         if (_initialized)
