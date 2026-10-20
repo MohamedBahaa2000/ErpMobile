@@ -26,10 +26,27 @@ public static class BarcodeScanCoordinator
 
     public static void ReportProgress(int count, string message) => ProgressChanged?.Invoke(count, message);
 
+    /// <summary>
+    /// عدد الوحدات التي تُضاف في كل مسح واحد — يضبطها المستخدم من عدّاد
+    /// «+/−» الموجود في شاشة الماسح. النطاق 1..99.
+    /// يعود إلى 1 تلقائياً عند بدء جلسة مسح جديدة.
+    /// </summary>
+    public static int QuantityPerScan
+    {
+        get => Volatile.Read(ref _quantityPerScan);
+        set => Volatile.Write(ref _quantityPerScan, Math.Clamp(value, 1, 99));
+    }
+
+    private static int _quantityPerScan = 1;
+
+    /// <summary>إعادة عدّاد الكمية إلى 1 عند بدء جلسة مسح جديدة.</summary>
+    private static void ResetQuantity() => Volatile.Write(ref _quantityPerScan, 1);
+
     /// <summary>مسح لمرة واحدة: يعيد قيمة الباركود أو null عند الإلغاء.</summary>
     public static async Task<string?> ScanAsync()
     {
         await EnsureCameraPermissionAsync();
+        ResetQuantity();
 
         var completion = CreatePendingScan();
         try
@@ -55,6 +72,7 @@ public static class BarcodeScanCoordinator
     public static async Task<string?> ScanContinuousAsync(Func<string, Task<bool>> onBarcode)
     {
         await EnsureCameraPermissionAsync();
+        ResetQuantity();
 
         var completion = CreatePendingScan();
         _continuousHandler = onBarcode;

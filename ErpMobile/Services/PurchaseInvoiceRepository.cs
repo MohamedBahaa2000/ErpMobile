@@ -47,6 +47,56 @@ public sealed class PurchaseInvoiceRepository
         }
     }
 
+    // ═══════════════ عمليات تستخدمها المرآة المحلية (PurchaseSource) ═══════════════
+
+    /// <summary>إدراج فاتورة مشتريات وإعادة رقمها التذكاري المحلي.</summary>
+    public async Task<int> InsertAsync(PurchaseInvoice invoice)
+    {
+        await InitializeAsync();
+        await _database.InsertAsync(invoice);
+        return invoice.Id;
+    }
+
+    public async Task UpdateAsync(PurchaseInvoice invoice)
+    {
+        await InitializeAsync();
+        await _database.UpdateAsync(invoice);
+    }
+
+    public async Task InsertItemAsync(PurchaseInvoiceItem item)
+    {
+        await InitializeAsync();
+        await _database.InsertAsync(item);
+    }
+
+    /// <summary>البحث عن فاتورة مشتريات برقمها (المفتاح الطبيعي في المرآة المحلية).</summary>
+    public async Task<PurchaseInvoice?> GetByNumberAsync(int invoiceNumber)
+    {
+        await InitializeAsync();
+        return await _database
+            .Table<PurchaseInvoice>()
+            .Where(invoice => invoice.InvoiceNumber == invoiceNumber)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <summary>حذف بنود فاتورة مشتريات محلية (قبل إعادة كتابتها من الخادم).</summary>
+    public async Task DeleteItemsAsync(int invoiceId)
+    {
+        await InitializeAsync();
+        await _database
+            .Table<PurchaseInvoiceItem>()
+            .Where(item => item.InvoiceId == invoiceId)
+            .DeleteAsync();
+    }
+
+    /// <summary>حذف فاتورة مشتريات مع بنودها.</summary>
+    public async Task DeleteWithItemsAsync(PurchaseInvoice invoice)
+    {
+        await InitializeAsync();
+        await DeleteItemsAsync(invoice.Id);
+        await _database.DeleteAsync(invoice);
+    }
+
     public async Task<List<PurchaseInvoice>> GetRecentAsync(int count = 20)
     {
         await InitializeAsync();

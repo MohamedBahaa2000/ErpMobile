@@ -9,6 +9,7 @@ namespace ErpMobile.Pages;
 public partial class ProductsListPage : ContentPage
 {
     private List<Product> _all = [];
+    private bool _fromApi;
 
     public ProductsListPage()
     {
@@ -23,20 +24,37 @@ public partial class ProductsListPage : ContentPage
 
     private async Task LoadAsync()
     {
-        try
+        // المصدر الموحّد: جلب من الخادم + مرآة محلية + احتياطي أوفلاين
+        ProductSourceResult source = await ProductSource.GetAsync();
+
+        _all = source.Items;
+        _fromApi = source.FromApi;
+
+        if (string.IsNullOrEmpty(source.StatusMessage))
         {
-            _all = await ProductRepository.Instance.GetAllAsync();
+            HideBanner();
         }
-        catch (Exception)
+        else
         {
-            _all = [];
+            ShowBanner(source.StatusMessage, source.StatusColor);
         }
 
         Render();
     }
 
+    private void ShowBanner(string message, string color)
+    {
+        ApiStatusBanner.BackgroundColor = Color.FromArgb(color);
+        ApiStatusText.Text = message;
+        ApiStatusBanner.IsVisible = true;
+    }
+
+    private void HideBanner() => ApiStatusBanner.IsVisible = false;
+
     private void Render()
     {
+        TitleLabel.Text = _fromApi ? "عرض الأصناف — من الخادم" : "عرض الأصناف — محلي";
+
         string query = SearchEntry.Text?.Trim() ?? string.Empty;
 
         List<Product> items = string.IsNullOrEmpty(query)
@@ -154,7 +172,14 @@ public partial class ProductsListPage : ContentPage
             return;
         }
 
-        await Shell.Current.GoToAsync($"{nameof(ProductPage)}?id={product.Id}");
+        // نمرّر المصدر (خادم/جهاز) والباركود عشان صفحة التعديل تعرف من أين تجلبه
+        string source = _fromApi ? "api" : "local";
+        string barcode = string.IsNullOrWhiteSpace(product.Barcode)
+            ? string.Empty
+            : Uri.EscapeDataString(product.Barcode);
+
+        await Shell.Current.GoToAsync(
+            $"{nameof(ProductPage)}?id={product.Id}&src={source}&bc={barcode}");
     }
 
     private void OnSearchChanged(object? sender, TextChangedEventArgs e) => Render();

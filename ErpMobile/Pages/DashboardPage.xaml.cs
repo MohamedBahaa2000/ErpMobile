@@ -66,7 +66,18 @@ public partial class DashboardPage : ContentPage
     {
         try
         {
-            List<Invoice> invoices = await InvoiceRepository.Instance.GetRecentAsync(500);
+            // مصدر موحّد للفواتير: الخادم أولاً، والجهاز احتياطياً (نفس مصدر صفحة «كل الفواتير»)
+            InvoiceSourceResult invoiceSource = await InvoiceSource.GetAsync(500);
+            List<Invoice> invoices = invoiceSource.Items;
+
+            // شريط الحالة أعلى الداشبورد: أخضر = من الخادم، أحمر = الخادم غير متاح
+            ShowStatusBanner(
+                string.IsNullOrEmpty(invoiceSource.StatusMessage)
+                    ? "وضع محلي — الاتصال بالخادم مُعطّل في الإعدادات"
+                    : invoiceSource.StatusMessage,
+                invoiceSource.FromApi,
+                invoiceSource.StatusColor);
+
             string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
             List<Invoice> todayInvoices = invoices.Where(invoice => invoice.InvoiceDate == today).ToList();
@@ -77,7 +88,7 @@ public partial class DashboardPage : ContentPage
 
             BuildRecentInvoices(invoices.Take(5).ToList());
 
-            await LoadAnalyticsAsync(invoices);
+            await LoadAnalyticsAsync(invoices, invoiceSource.AllItems);
         }
         catch (Exception)
         {
@@ -85,9 +96,40 @@ public partial class DashboardPage : ContentPage
         }
     }
 
+    /// <summary>
+    /// عرض شريط حالة الاتصال بالخادم أعلى الداشبورد:
+    /// أخضر = البيانات من الخادم، أحمر = الخادم غير متاح والمعروض من الجهاز.
+    /// </summary>
+    private void ShowStatusBanner(string message, bool fromApi, string color)
+    {
+        StatusBannerContainer.Children.Clear();
+
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return;
+        }
+
+        StatusBannerContainer.Children.Add(new Border
+        {
+            Padding = new Thickness(12, 9),
+            BackgroundColor = Color.FromArgb(fromApi ? "#EAF7F0" : "#FDEEEE"),
+            Stroke = Color.FromArgb(color),
+            StrokeThickness = 1,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 12 },
+            Content = new Label
+            {
+                Text = message,
+                FontSize = 12,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb(color),
+                HorizontalTextAlignment = TextAlignment.Center
+            }
+        });
+    }
+
     // ===================== تحليلات الداشبورد =====================
 
-    private async Task LoadAnalyticsAsync(List<Invoice> invoices)
+    private async Task LoadAnalyticsAsync(List<Invoice> invoices, List<InvoiceItem> allItems)
     {
         // 1) بطاقات المؤشرات
         string today = DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -96,18 +138,20 @@ public partial class DashboardPage : ContentPage
         AnalyticsSalesLabel.Text = FormatAmount(todaySales);
         AnalyticsSalesCountLabel.Text = $"{TodayInvoicesCount(invoices)} فاتورة اليوم";
 
-        // الأصناف
-        List<Product> products = await ProductRepository.Instance.GetAllAsync();
-        AnalyticsProductsLabel.Text = products.Count.ToString();
-        AnalyticsProductsValueLabel.Text = $"قيمة المخزون: {FormatAmount(products.Sum(p => p.Price))}";
+        // الأصناف — نفس المصدر الموحّد مع صفحة «كل الأصناف» (خادم إن كان مفعّلاً)
+        ProductSourceResult productSource = await ProductSource.GetAsync();
+        AnalyticsProductsLabel.Text = productSource.Items.Count.ToString();
+        AnalyticsProductsValueLabel.Text = $"قيمة المخزون: {FormatAmount(productSource.Items.Sum(p => p.Price))}";
 
-        // العملاء
-        List<Party> customers = await PartyRepository.Instance.GetAllAsync(Party.Customer);
+        // العملاء — نفس المصدر الموحّد مع صفحة «العملاء»
+        PartySourceResult customerSource = await PartySource.GetAsync(Party.Customer);
+        List<Party> customers = customerSource.Items;
         AnalyticsCustomersLabel.Text = customers.Count.ToString();
         AnalyticsCustomersBalanceLabel.Text = $"أرصدة: {FormatAmount(customers.Sum(c => c.OpeningBalance))}";
 
-        // الموردين
-        List<Party> suppliers = await PartyRepository.Instance.GetAllAsync(Party.Supplier);
+        // الموردين — نفس المصدر الموحّد مع صفحة «الموردين»
+        PartySourceResult supplierSource = await PartySource.GetAsync(Party.Supplier);
+        List<Party> suppliers = supplierSource.Items;
         AnalyticsSuppliersLabel.Text = suppliers.Count.ToString();
         AnalyticsSuppliersBalanceLabel.Text = $"أرصدة: {FormatAmount(suppliers.Sum(s => s.OpeningBalance))}";
 
@@ -115,7 +159,7 @@ public partial class DashboardPage : ContentPage
         BuildSalesChart(invoices);
 
         // 3) الأصناف الأكثر مبيعاً
-        await BuildTopProductsAsync();
+        BuildTopProducts(allItems);
 
         // 4) العملاء الأكثر شراءً
         BuildTopCustomers(invoices);
@@ -203,11 +247,9 @@ public partial class DashboardPage : ContentPage
         }
     }
 
-    private async Task BuildTopProductsAsync()
+    private void BuildTopProducts(List<InvoiceItem> items)
     {
         TopProductsContainer.Children.Clear();
-
-        List<InvoiceItem> items = await InvoiceRepository.Instance.GetAllItemsAsync();
 
         var grouped = items
             .GroupBy(i => new { i.Barcode, i.Name })
