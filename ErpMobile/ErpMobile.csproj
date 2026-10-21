@@ -56,7 +56,7 @@
 	  <AndroidSigningKeyStore>123456</AndroidSigningKeyStore>
 	  <AndroidKeyStore>True</AndroidKeyStore>
 	  <AndroidSigningStorePass>123456</AndroidSigningStorePass>
-	  <AndroidPackageFormat>aab</AndroidPackageFormat>
+	  <AndroidPackageFormat>apk</AndroidPackageFormat>
 	  <AndroidUseAapt2>True</AndroidUseAapt2>
 	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
