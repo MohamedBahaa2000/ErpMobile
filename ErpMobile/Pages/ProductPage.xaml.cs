@@ -5,6 +5,8 @@ using ErpMobile.Services;
 namespace ErpMobile.Pages;
 
 [QueryProperty(nameof(ProductId), "id")]
+[QueryProperty(nameof(ItemSource), "src")]
+[QueryProperty(nameof(ItemBarcode), "bc")]
 public partial class ProductPage : ContentPage
 {
     private const string ChooseItem = "-- اختر --";
@@ -12,7 +14,17 @@ public partial class ProductPage : ContentPage
     /// <summary>معرّف الصنف المراد تعديله — 0 لصنف جديد.</summary>
     public int ProductId { get; set; }
 
+    /// <summary>من أين جاء الصنف: "api" (معرّف الخادم) أو "local" (معرّف الجهاز).</summary>
+    public string ItemSource { get; set; } = string.Empty;
+
+    /// <summary>باركود الصنف — يُستخدم للبحث المحلي الدقيق لو فشل الاتصال بالخادم.</summary>
+    public string ItemBarcode { get; set; } = string.Empty;
+
     private bool _isEditMode;
+
+    /// <summary>true إذا كان الصنف مسجلاً على الخادم (نستخدم PUT بدل التحديث المحلي).</summary>
+    private bool _fromApi;
+
     private bool _loaded;
 
     public ProductPage()
@@ -50,6 +62,11 @@ public partial class ProductPage : ContentPage
     {
         base.OnAppearing();
 
+        // توضيح طريقة الحفظ الحالية للمستخدم
+        StorageHintLabel.Text = ApiConfig.UseApi
+            ? "سيتم حفظ الصنف على الخادم ومزامنته على الجهاز. عند انقطاع الاتصال يُحفظ محلياً وتتم المزامنة عند العودة."
+            : "سيتم حفظ الأصناف محلياً على هذا الجهاز، ويمكن استخدامها دون إنترنت.";
+
         // تحميل الصنف المراد تعديله مرة واحدة
         if (!_loaded && ProductId > 0)
         {
@@ -60,13 +77,47 @@ public partial class ProductPage : ContentPage
 
     private async Task LoadProductAsync()
     {
-        Product? product = await ProductRepository.Instance.GetByIdAsync(ProductId);
+        Product? product = null;
+        _fromApi = false;
+
+        // 1) إن جاء الصنف من قائمة الخادم → نجلبه من api/Items/{id}
+        if (ApiConfig.UseApi && ItemSource == "api")
+        {
+            try
+            {
+                ApiItem? item = await ApiService.GetItemAsync(ProductId);
+                if (item is not null)
+                {
+                    product = item.ToProduct();
+                    _fromApi = true;
+                }
+            }
+            catch (Exception)
+            {
+                // الخادم غير متاح الآن → ننتقل للخطوة 2 (بحث محلي دقيق بالباركود)
+            }
+        }
+
+        // 2) مسار محلي: بحث بالباركود (دقيق) ثم بالرقم
+        if (product is null)
+        {
+            _fromApi = false;
+
+            if (!string.IsNullOrWhiteSpace(ItemBarcode))
+            {
+                product = await ProductRepository.Instance.GetByBarcodeAsync(ItemBarcode);
+            }
+
+            product ??= await ProductRepository.Instance.GetByIdAsync(ProductId);
+        }
+
         if (product is null)
         {
             return;
         }
 
         _isEditMode = true;
+        DeleteButton.IsVisible = true;
 
         NameEntry.Text = product.Name;
         BarcodeEntry.Text = product.Barcode;
@@ -187,6 +238,60 @@ public partial class ProductPage : ContentPage
         await Shell.Current.GoToAsync("..");
     }
 
+    // ---------------------------------------------------------------------
+    // الحذف (خادم + جهاز)
+    // ---------------------------------------------------------------------
+
+    private async void OnDeleteClicked(object? sender, EventArgs e)
+    {
+        if (!_isEditMode)
+        {
+            return;
+        }
+
+        string name = NameEntry.Text?.Trim() ?? string.Empty;
+        bool confirm = await DisplayAlertAsync(
+            "حذف الصنف",
+            $"هل تريد حذف «{name}» نهائياً؟",
+            "نعم، احذف",
+            "إلغاء");
+
+        if (!confirm)
+        {
+            return;
+        }
+
+        try
+        {
+            // 1) الحذف من الخادم إن كان الصنف مسجّلاً هناك
+            if (ApiConfig.UseApi && _fromApi)
+            {
+                await ApiService.DeleteItemAsync(ProductId);
+            }
+
+            // 2) حذف النسخة المحلية إن وُجدت (بالباركود)
+            if (!string.IsNullOrWhiteSpace(ItemBarcode))
+            {
+                Product? local = await ProductRepository.Instance.GetByBarcodeAsync(ItemBarcode);
+                if (local is not null)
+                {
+                    await ProductRepository.Instance.DeleteAsync(local.Id);
+                }
+            }
+
+            ToastService.Success("تم حذف الصنف ✓");
+            await Shell.Current.GoToAsync("..");
+        }
+        catch (ApiException ex)
+        {
+            await DisplayAlertAsync("تعذّر الحذف", ex.Message, "موافق");
+        }
+        catch (Exception)
+        {
+            await DisplayAlertAsync("تعذّر الحذف", "حدث خطأ أثناء الحذف من الخادم.", "موافق");
+        }
+    }
+
     private async Task<bool> SaveProductAsync()
     {
         string name = NameEntry.Text?.Trim() ?? string.Empty;
@@ -227,6 +332,56 @@ public partial class ProductPage : ContentPage
             Notes = NotesEditor.Text?.Trim() ?? string.Empty
         };
 
+        // ── 1) وضع الخادم: الكتابة على api/Items ثم نسخها للجهاز (مرآة) ──
+        if (ApiConfig.UseApi)
+        {
+            try
+            {
+                if (_isEditMode && _fromApi)
+                {
+                    // تعديل صنف مسجّل على الخادم
+                    product.Id = ProductId;
+                    await ApiService.UpdateItemAsync(ProductId, ApiItem.FromProduct(product));
+                }
+                else
+                {
+                    // صنف جديد — أو صنف محلي غير موجود على الخادم → يُنشأ هناك
+                    product.Id = 0;
+                    ApiItem? created = await ApiService.CreateItemAsync(ApiItem.FromProduct(product));
+
+                    if (created is not null && created.Id > 0)
+                    {
+                        ProductId = created.Id;
+                        ItemSource = "api";
+                        ItemBarcode = product.Barcode;
+                        _fromApi = true;
+                        _isEditMode = true;
+                    }
+                }
+
+                // مرآة محلية بالباركود (عشان الفواتير والسكانر يلاقوه)
+                await ProductSource.UpsertLocalAsync(product);
+                return true;
+            }
+            catch (ApiException ex) when (ex.StatusCode == 0)
+            {
+                // الخادم غير متاح فعلاً → حفظ محلي حتى لا يضيع عمل المستخدم
+                await ProductSource.UpsertLocalAsync(product);
+                ToastService.Warning("الخادم غير متاح — تم الحفظ محلياً وسيُزامَن عند عودته");
+                return true;
+            }
+            catch (ApiException ex)
+            {
+                // رفض من الخادم (مثلاً: باركود مكرر) → نعرض رسالته كما هي
+                string msg = string.IsNullOrWhiteSpace(ex.Message)
+                    ? "تعذّر حفظ الصنف على الخادم."
+                    : ex.Message;
+                await DisplayAlertAsync("رفض الخادم", msg, "موافق");
+                return false;
+            }
+        }
+
+        // ── 2) وضع محلي (ApiConfig.UseApi = false) ──
         if (_isEditMode)
         {
             product.Id = ProductId;
@@ -254,7 +409,11 @@ public partial class ProductPage : ContentPage
     {
         // «حفظ وإضافة جديد» يعيد النموذج لوضع الصنف الجديد
         _isEditMode = false;
+        _fromApi = false;
         ProductId = 0;
+        ItemSource = string.Empty;
+        ItemBarcode = string.Empty;
+        DeleteButton.IsVisible = false;
 
         NameEntry.Text = string.Empty;
         BarcodeEntry.Text = string.Empty;

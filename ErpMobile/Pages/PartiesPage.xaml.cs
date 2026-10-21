@@ -9,6 +9,9 @@ public partial class PartiesPage : ContentPage
 {
     private List<Party> _parties = [];
 
+    /// <summary>نتيجة آخر جلب — تحمل شريط حالة الاتصال بالخادم.</summary>
+    private PartySourceResult _source = new();
+
     /// <summary>customer أو supplier — يُمرَّر من الداشبورد.</summary>
     public string PartyType { get; set; } = Party.Customer;
 
@@ -32,7 +35,9 @@ public partial class PartiesPage : ContentPage
     {
         try
         {
-            _parties = await PartyRepository.Instance.GetAllAsync(PartyType, SearchEntry.Text);
+            // مصدر موحّد: الخادم أولاً ثم المرآة المحلية (نفس مصدر الداشبورد)
+            _source = await PartySource.GetAsync(PartyType, SearchEntry.Text);
+            _parties = _source.Items;
         }
         catch (Exception)
         {
@@ -45,6 +50,29 @@ public partial class PartiesPage : ContentPage
     private void BuildList()
     {
         ListContainer.Children.Clear();
+
+        // شريط حالة الاتصال بالخادم (أخضر = من الـ API، أحمر = بيانات الجهاز)
+        if (!string.IsNullOrEmpty(_source.StatusMessage))
+        {
+            ListContainer.Children.Add(new Border
+            {
+                Padding = new Thickness(12, 8),
+                Margin = new Thickness(0, 0, 0, 10),
+                BackgroundColor = Color.FromArgb(_source.FromApi ? "#EAF7F0" : "#FDEEEE"),
+                Stroke = Color.FromArgb(_source.StatusColor),
+                StrokeThickness = 1,
+                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
+                Content = new Label
+                {
+                    Text = _source.StatusMessage,
+                    FontSize = 12,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Color.FromArgb(_source.StatusColor),
+                    HorizontalTextAlignment = TextAlignment.Center
+                }
+            });
+        }
+
         CountLabel.Text = $"{_parties.Count} سجل";
 
         if (_parties.Count == 0)
@@ -178,7 +206,7 @@ public partial class PartiesPage : ContentPage
             return;
         }
 
-        await PartyRepository.Instance.DeleteAsync(party);
+        await PartySource.DeleteAsync(party);
         ToastService.Success($"تم حذف «{party.Name}» ✓");
         await LoadAsync();
     }

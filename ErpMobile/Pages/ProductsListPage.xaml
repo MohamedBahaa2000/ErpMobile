@@ -7,7 +7,7 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F4F7FC">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
         <!-- الشريط العلوي -->
         <Grid
@@ -27,6 +27,7 @@
                 Clicked="OnCloseClicked" />
             <Label
                 Grid.Column="1"
+                x:Name="TitleLabel"
                 Text="عرض الأصناف"
                 FontSize="17"
                 FontAttributes="Bold"
@@ -67,9 +68,26 @@
             </Border>
         </Grid>
 
+        <!-- شريط حالة الاتصال بالخادم -->
+        <Border
+            x:Name="ApiStatusBanner"
+            Grid.Row="2"
+            Margin="14,0,14,6"
+            Padding="12,9"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 12"
+            IsVisible="False">
+            <Label
+                x:Name="ApiStatusText"
+                FontSize="12"
+                FontAttributes="Bold"
+                TextColor="White"
+                HorizontalTextAlignment="Center" />
+        </Border>
+
         <!-- ملخص -->
         <Grid
-            Grid.Row="2"
+            Grid.Row="3"
             Padding="14,0,14,4"
             ColumnDefinitions="*,*"
             ColumnSpacing="10">
@@ -99,7 +117,7 @@
         </Grid>
 
         <!-- القائمة -->
-        <ScrollView Grid.Row="3">
+        <ScrollView Grid.Row="4">
             <VerticalStackLayout Padding="14,6" Spacing="10">
                 <Label
                     x:Name="EmptyLabel"
