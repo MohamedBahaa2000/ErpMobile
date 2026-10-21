@@ -1,4 +1,3 @@
-using ErpMobile.Models;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -17,15 +16,7 @@ public sealed class LoginResponse
     public string? Token { get; set; }
     public string? UserName { get; set; }
     public string? Message { get; set; }
-
-    /// <summary>
-    /// الدخول ناجح لو رجع توكن، أو رجع مستخدماً/رسالة نجاح.
-    /// ملاحظة: أخطاء الدخول (401) تُعالج قبل الوصول هنا، فأي استجابة 2xx هنا نجاح.
-    /// </summary>
-    public bool Success =>
-        !string.IsNullOrEmpty(Token) ||
-        !string.IsNullOrEmpty(UserName) ||
-        !string.IsNullOrEmpty(Message);
+    public bool Success => !string.IsNullOrEmpty(Token);
 }
 
 // ═══════════════ استثناء الـ API ═══════════════
@@ -50,10 +41,7 @@ public static class ApiService
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNameCaseInsensitive = true,
-
-        // الـ API متوقع camelCase (name / price / unit ...) — بنفس صيغة استجاباته
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNameCaseInsensitive = true
     };
 
     /// <summary>إنشاء عميل HTTP بالإعدادات المركزة.</summary>
@@ -153,8 +141,7 @@ public static class ApiService
 
         if (result is not null && result.Success)
         {
-            // بعض إصدارات الـ API لا تُرجع توكن (رسالة نجاح فقط) — نحفظ فارغاً بدل null
-            SetToken(result.Token ?? string.Empty);
+            SetToken(result.Token!);
         }
 
         return result;
@@ -235,201 +222,6 @@ public static class ApiService
             string body = await response.Content.ReadAsStringAsync();
             throw new ApiException(ExtractMessage(body), (int)response.StatusCode);
         }
-    }
-
-    /// <summary>
-    /// جلب كل الأصناف من الخادم (GET {ItemsEndpoint}).
-    /// يعيد قائمة فارغة إذا كان الـ API مُعطّلاً.
-    /// </summary>
-    public static async Task<List<ApiItem>> GetItemsAsync()
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return new List<ApiItem>();
-        }
-
-        List<ApiItem>? items = await GetAsync<List<ApiItem>>(ApiConfig.ItemsEndpoint);
-        return items ?? new List<ApiItem>();
-    }
-
-    // ═══════════════ عمليات الأصناف (CRUD) ═══════════════
-
-    /// <summary>جلب صنف واحد من الخادم (GET {ItemsEndpoint}/{id}).</summary>
-    public static async Task<ApiItem?> GetItemAsync(int id)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await GetAsync<ApiItem>($"{ApiConfig.ItemsEndpoint}/{id}");
-    }
-
-    /// <summary>صنف جديد على الخادم (POST {ItemsEndpoint}) — يعيد الصنف بـ Id الجديد.</summary>
-    public static async Task<ApiItem?> CreateItemAsync(ApiItem item)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PostAsync<ApiItem, ApiItem>(ApiConfig.ItemsEndpoint, item);
-    }
-
-    /// <summary>تعديل صنف موجود على الخادم (PUT {ItemsEndpoint}/{id}).</summary>
-    public static async Task<ApiItem?> UpdateItemAsync(int id, ApiItem item)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PutAsync<ApiItem, ApiItem>($"{ApiConfig.ItemsEndpoint}/{id}", item);
-    }
-
-    /// <summary>حذف صنف من الخادم (DELETE {ItemsEndpoint}/{id}).</summary>
-    public static async Task DeleteItemAsync(int id)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return;
-        }
-
-        await DeleteAsync($"{ApiConfig.ItemsEndpoint}/{id}");
-    }
-
-    // ═══════════════ عمليات الأطراف (عملاء/موردون) ═══════════════
-
-    /// <summary>كل الأطراف من الخادم (GET {PartiesEndpoint}).</summary>
-    public static async Task<List<ApiParty>> GetPartiesAsync()
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return new List<ApiParty>();
-        }
-
-        List<ApiParty>? parties = await GetAsync<List<ApiParty>>(ApiConfig.PartiesEndpoint);
-        return parties ?? new List<ApiParty>();
-    }
-
-    /// <summary>طرف جديد على الخادم (POST) — يعيده بـ Id الجديد.</summary>
-    public static async Task<ApiParty?> CreatePartyAsync(ApiParty party)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PostAsync<ApiParty, ApiParty>(ApiConfig.PartiesEndpoint, party);
-    }
-
-    /// <summary>تعديل طرف على الخادم (PUT {PartiesEndpoint}/{id}).</summary>
-    public static async Task<ApiParty?> UpdatePartyAsync(int id, ApiParty party)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PutAsync<ApiParty, ApiParty>($"{ApiConfig.PartiesEndpoint}/{id}", party);
-    }
-
-    /// <summary>حذف طرف من الخادم (DELETE {PartiesEndpoint}/{id}).</summary>
-    public static async Task DeletePartyAsync(int id)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return;
-        }
-
-        await DeleteAsync($"{ApiConfig.PartiesEndpoint}/{id}");
-    }
-
-    // ═══════════════ عمليات الفواتير ═══════════════
-
-    /// <summary>كل فواتير المبيعات من الخادم (GET {InvoicesEndpoint}).</summary>
-    public static async Task<List<ApiInvoice>> GetInvoicesAsync()
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return new List<ApiInvoice>();
-        }
-
-        List<ApiInvoice>? invoices = await GetAsync<List<ApiInvoice>>(ApiConfig.InvoicesEndpoint);
-        return invoices ?? new List<ApiInvoice>();
-    }
-
-    /// <summary>فاتورة جديدة على الخادم (POST) — تشمل بنودها.</summary>
-    public static async Task<ApiInvoice?> CreateInvoiceAsync(ApiInvoice invoice)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PostAsync<ApiInvoice, ApiInvoice>(ApiConfig.InvoicesEndpoint, invoice);
-    }
-
-    /// <summary>حذف فاتورة من الخادم (DELETE {InvoicesEndpoint}/{id}).</summary>
-    public static async Task DeleteInvoiceAsync(int id)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return;
-        }
-
-        await DeleteAsync($"{ApiConfig.InvoicesEndpoint}/{id}");
-    }
-
-    // ═══════════════ عمليات فواتير المشتريات ═══════════════
-
-    /// <summary>كل فواتير المشتريات من الخادم (GET {PurchaseInvoicesEndpoint}).</summary>
-    public static async Task<List<ApiPurchaseInvoice>> GetPurchaseInvoicesAsync()
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return new List<ApiPurchaseInvoice>();
-        }
-
-        List<ApiPurchaseInvoice>? invoices =
-            await GetAsync<List<ApiPurchaseInvoice>>(ApiConfig.PurchaseInvoicesEndpoint);
-
-        return invoices ?? new List<ApiPurchaseInvoice>();
-    }
-
-    /// <summary>فاتورة مشتريات جديدة على الخادم (POST) — تشمل بنودها.</summary>
-    public static async Task<ApiPurchaseInvoice?> CreatePurchaseInvoiceAsync(ApiPurchaseInvoice invoice)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PostAsync<ApiPurchaseInvoice, ApiPurchaseInvoice>(
-            ApiConfig.PurchaseInvoicesEndpoint, invoice);
-    }
-
-    /// <summary>تعديل فاتورة مشتريات على الخادم (PUT {PurchaseInvoicesEndpoint}/{id}).</summary>
-    public static async Task<ApiPurchaseInvoice?> UpdatePurchaseInvoiceAsync(int id, ApiPurchaseInvoice invoice)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return null;
-        }
-
-        return await PutAsync<ApiPurchaseInvoice, ApiPurchaseInvoice>(
-            $"{ApiConfig.PurchaseInvoicesEndpoint}/{id}", invoice);
-    }
-
-    /// <summary>حذف فاتورة مشتريات من الخادم (DELETE {PurchaseInvoicesEndpoint}/{id}).</summary>
-    public static async Task DeletePurchaseInvoiceAsync(int id)
-    {
-        if (!ApiConfig.UseApi)
-        {
-            return;
-        }
-
-        await DeleteAsync($"{ApiConfig.PurchaseInvoicesEndpoint}/{id}");
     }
 
     /// <summary>استخراج رسالة الخطأ من استجابة الخادم.</summary>

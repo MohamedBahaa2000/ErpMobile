@@ -1,4 +1,3 @@
-using System.Globalization;
 using ErpMobile.Models;
 using ErpMobile.Services;
 using Microsoft.Maui.ApplicationModel;
@@ -28,7 +27,6 @@ public partial class BarcodeScannerPage : ContentPage
         BarcodeScanCoordinator.ProgressChanged += OnScanProgress;
         BarcodeScanCoordinator.ItemAdded += OnItemAdded;
         ScanCountLabel.Text = "الأصناف المضافة: 0";
-        QtyValueLabel.Text = BarcodeScanCoordinator.QuantityPerScan.ToString(CultureInfo.InvariantCulture);
         ScanMessageLabel.Text = BarcodeScanCoordinator.IsContinuous
             ? "وضع المسح المتصل: مسح متتالي لحد ما تضغط «تم»"
             : "امسح الباركود المطلوب";
@@ -157,28 +155,6 @@ public partial class BarcodeScannerPage : ContentPage
 
             await Shell.Current.GoToAsync("..");
         });
-    }
-
-    // ---------------------------------------------------------------------
-    // عدّاد كمية الإضافة لكل مسح
-    // ---------------------------------------------------------------------
-
-    private void OnQtyPlusClicked(object? sender, EventArgs e) =>
-        SetQuantity(BarcodeScanCoordinator.QuantityPerScan + 1);
-
-    private void OnQtyMinusClicked(object? sender, EventArgs e) =>
-        SetQuantity(BarcodeScanCoordinator.QuantityPerScan - 1);
-
-    private void SetQuantity(int value)
-    {
-        BarcodeScanCoordinator.QuantityPerScan = value; // الكوّرديناتور يعمل clamp بين 1 و99
-        QtyValueLabel.Text = BarcodeScanCoordinator.QuantityPerScan.ToString(CultureInfo.InvariantCulture);
-
-        int qty = BarcodeScanCoordinator.QuantityPerScan;
-        ScanMessageLabel.Text = qty == 1
-            ? "كل مسح هيضيف وحدة واحدة"
-            : $"كل مسح هيضيف {qty} وحدة — لو نفس الباركود اتمسح تاني هتزود في نفس السطر";
-        ScanMessageLabel.TextColor = Color.FromArgb("#9DE7C4");
     }
 
     private async void OnCancelClicked(object? sender, EventArgs e)

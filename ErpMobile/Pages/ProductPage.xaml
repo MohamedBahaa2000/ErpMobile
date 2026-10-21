@@ -290,7 +290,7 @@
                 </Border>
 
                 <!-- أزرار الحفظ -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="8">
                     <Button
                         Text="حفظ - إضافة جديد"
                         HeightRequest="48"
@@ -311,19 +311,6 @@
                         FontSize="13"
                         Clicked="OnSaveClicked" />
                     <Button
-                        x:Name="DeleteButton"
-                        Grid.Row="2"
-                        Grid.ColumnSpan="2"
-                        Text="🗑 حذف الصنف"
-                        HeightRequest="44"
-                        CornerRadius="8"
-                        BackgroundColor="#C43D3D"
-                        TextColor="White"
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        IsVisible="False"
-                        Clicked="OnDeleteClicked" />
-                    <Button
                         Grid.Row="1"
                         Grid.ColumnSpan="2"
                         Text="إغلاق ✕"
@@ -336,7 +323,6 @@
                 </Grid>
 
                 <Label
-                    x:Name="StorageHintLabel"
                     Text="سيتم حفظ الأصناف محلياً على هذا الجهاز، ويمكن استخدامها دون إنترنت."
                     FontSize="11"
                     TextColor="#748198"

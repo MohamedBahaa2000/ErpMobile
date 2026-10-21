@@ -12,9 +12,6 @@
     <ScrollView>
         <VerticalStackLayout Padding="16,20" Spacing="20">
 
-            <!-- ================= شريط حالة الاتصال بالخادم ================= -->
-            <VerticalStackLayout x:Name="StatusBannerContainer" Spacing="0" />
-
             <!-- ================= الترويسة المميّزة ================= -->
             <Border
                 Padding="18,18"

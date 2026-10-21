@@ -17,44 +17,14 @@ public partial class LoginPage : ContentPage
         RememberCheck.IsChecked = SessionManager.IsRemembered;
     }
 
-    private bool _autoLoginStarted;
-
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
 
         // دخول تلقائي إذا كان "تذكّرني" مفعّلاً والبيانات ما زالت صحيحة
-        if (SessionManager.ShouldAutoLogin() && !_autoLoginStarted)
+        if (SessionManager.ShouldAutoLogin())
         {
-            _autoLoginStarted = true;
-            _ = AutoLoginAsync();
-        }
-    }
-
-    /// <summary>
-    /// نفّذ الدخول التلقائي بعد أن يكتمل إنشاء Shell.
-    /// ملاحظة: التنقل المباشر من OnAppearing أثناء بناء Shell الأولي
-    /// يسبّب خطأً معروفاً في MAUI: "Pending Navigations still processing".
-    /// لذلك ننتظر ثم نعيد المحاولة حتى يجهز التنقل.
-    /// </summary>
-    private static async Task AutoLoginAsync()
-    {
-        for (int attempt = 0; attempt < 6; attempt++)
-        {
-            await Task.Delay(350);
-
-            try
-            {
-                if (Shell.Current is not null)
-                {
-                    await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                // Shell ما زال يجهّز — نعيد المحاولة بعد قليل
-            }
+            await Shell.Current.GoToAsync($"//{nameof(DashboardPage)}");
         }
     }
 

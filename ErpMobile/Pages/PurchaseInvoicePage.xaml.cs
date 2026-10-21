@@ -16,7 +16,6 @@ public partial class PurchaseInvoicePage : ContentPage
     private bool _ready;
     private bool _scanning;
     private int _scanSessionCount;
-    private readonly ScannerInputListener? _scannerListener;
 
     private double _subtotal;
     private double _itemDiscount;
@@ -72,9 +71,6 @@ public partial class PurchaseInvoicePage : ContentPage
 
         ScanStatusLabel.Text = "المسح المتصل يضيف عدة أصناف متتالية حتى تضغط «تم ✓ رجوع»";
 
-        // ماسح الباركود USB: يلتقط الباركود تلقائياً من غير أي نقر
-        _scannerListener = new ScannerInputListener(BarcodeEntry, AddProductByBarcodeAsync);
-
         _ready = true;
     }
 
@@ -93,23 +89,7 @@ public partial class PurchaseInvoicePage : ContentPage
         }
 
         Recalculate();
-
-#if WINDOWS
-        // ماسح الباركود USB: نجهّز الحقل لاستقبال الباركود مباشرةً
-        ScanStatusLabel.Text = "جاهز لاستقبال ماسح الباركود (USB) — وجّه الماسح وامسح بدون نقر";
-        ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
-        _ = FocusBarcodeAsync();
-#endif
     }
-
-#if WINDOWS
-    /// <summary>ننتظر حتى تستقر الصفحة ثم نضع التركيز في حقل الباركود.</summary>
-    private async Task FocusBarcodeAsync()
-    {
-        await Task.Delay(250);
-        BarcodeEntry.Focus();
-    }
-#endif
 
     private async Task LoadInvoiceNumberAsync()
     {
@@ -157,7 +137,7 @@ public partial class PurchaseInvoicePage : ContentPage
             if (_scanSessionCount > 0)
             {
                 ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
-                ScanStatusLabel.Text = $"تمت إضافة {_scanSessionCount} وحدة للفاتورة — اضغط «مسح» للمتابعة";
+                ScanStatusLabel.Text = $"تمت إضافة {_scanSessionCount} صنف للفاتورة — اضغط «مسح» للمتابعة";
             }
             else
             {
@@ -179,24 +159,14 @@ public partial class PurchaseInvoicePage : ContentPage
             return true;
         }
 
-        int quantity = BarcodeScanCoordinator.QuantityPerScan;
-        double? totalQuantity = await AddProductCheckedAsync(product, quantity);
-
-        if (totalQuantity is null)
-        {
-            // المستخدم رفض إضافة الصنف الموجود مسبقاً — نكمل المسح
-            BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"تم تخطي: {product.Name} — موجود مسبقاً");
-            BarcodeScanCoordinator.ReportItemAdded(product.Name, "الصنف موجود مسبقاً — لم تتم الإضافة", success: false);
-            return true;
-        }
-
-        _scanSessionCount += quantity;
-        BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"تمت إضافة: {product.Name} × {quantity}");
+        AddLine(product);
+        _scanSessionCount++;
+        BarcodeScanCoordinator.ReportProgress(_scanSessionCount, $"تمت إضافة: {product.Name}");
 
         double linePrice = product.CostValue > 0 ? product.CostValue : product.Price;
         BarcodeScanCoordinator.ReportItemAdded(
             product.Name,
-            $"{product.Barcode} • سعر الشراء {FormatAmount(linePrice)} • الكمية {FormatQuantity(totalQuantity.Value)} {product.Unit}",
+            $"{product.Barcode} • سعر الشراء {FormatAmount(linePrice)} • {product.Unit}",
             success: true);
         return true;
     }
@@ -210,37 +180,18 @@ public partial class PurchaseInvoicePage : ContentPage
             return;
         }
 
-        await AddProductByBarcodeAsync(barcode);
-    }
-
-    private async Task AddProductByBarcodeAsync(string barcode)
-    {
         Product? product = await ProductRepository.Instance.GetByBarcodeAsync(barcode);
         if (product is null)
         {
-            BarcodeEntry.Text = barcode;
             await DisplayAlertAsync("المنتج غير موجود", "أضف المنتج أولاً من وحدة الأصناف ثم أعد المحاولة.", "موافق");
-#if WINDOWS
-            BarcodeEntry.Focus();
-#endif
             return;
         }
 
-        double? totalQuantity = await AddProductCheckedAsync(product, 1);
+        AddLine(product);
         BarcodeEntry.Text = string.Empty;
-
-        if (totalQuantity is null)
-        {
-            ScanStatusLabel.TextColor = Color.FromArgb("#C77700");
-            ScanStatusLabel.Text = $"{product.Name} موجود مسبقاً — تم إلغاء الإضافة";
-            return;
-        }
-
-        ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
-        ScanStatusLabel.Text = $"{product.Name} × {FormatQuantity(totalQuantity.Value)} — تمت الإضافة";
     }
 
-    private void AddLine(Product product, int quantity = 1)
+    private void AddLine(Product product)
     {
         var item = new PurchaseLine { Product = product };
 
@@ -253,8 +204,7 @@ public partial class PurchaseInvoicePage : ContentPage
         Label codeLabel = MakeCell(product.Barcode);
         Label nameLabel = MakeCell(product.Name);
         Label unitLabel = MakeCell(product.Unit);
-        item.QuantityEntry = MakeCellEntry(
-            quantity.ToString(CultureInfo.InvariantCulture), Keyboard.Numeric, OnInvoiceInputChanged);
+        item.QuantityEntry = MakeCellEntry("1", Keyboard.Numeric, OnInvoiceInputChanged);
         item.PriceEntry = MakeCellEntry(FormatAmount(purchasePrice), Keyboard.Numeric, OnInvoiceInputChanged);
         item.GrossLabel = MakeCell(FormatAmount(purchasePrice));
         item.DiscountPercentEntry = MakeCellEntry("0", Keyboard.Numeric, OnInvoiceInputChanged);
@@ -294,57 +244,6 @@ public partial class PurchaseInvoicePage : ContentPage
         _lines.Add(item);
         EmptyItemsLabel.IsVisible = false;
         Recalculate();
-    }
-
-    /// <summary>
-    /// يضيف الصنف للفاتورة؛ ولو الباركود موجود مسبقاً <b>يسأل المستخدم</b>
-    /// هل يضيفه مرة أخرى (بدل الإضافة التلقائية الصامتة).
-    /// يعيد الكمية الإجمالية للسطر، أو null لو المستخدم رفض الإضافة.
-    /// </summary>
-    private async Task<double?> AddProductCheckedAsync(Product product, int quantity)
-    {
-        PurchaseLine? existing = _lines.FirstOrDefault(line => line.Product.Barcode == product.Barcode);
-
-        if (existing is not null)
-        {
-            double currentQuantity = ParseAmount(existing.QuantityEntry.Text);
-            string unit = string.IsNullOrWhiteSpace(product.Unit) ? "وحدة" : product.Unit;
-
-            bool addAgain = await DisplayAlertAsync(
-                "الصنف موجود مسبقاً",
-                $"{product.Name}\n\nالكمية الحالية في الفاتورة: {FormatQuantity(currentQuantity)} {unit}\nهل تريد إضافة {quantity} {unit} أخرى؟",
-                "أضف",
-                "إلغاء");
-
-            if (!addAgain)
-            {
-                return null; // المستخدم اختار «إلغاء»
-            }
-
-            double newQuantity = currentQuantity + quantity;
-            existing.QuantityEntry.Text = FormatQuantity(newQuantity);
-            FlashCell(existing.QuantityEntry);
-            Recalculate();
-            return newQuantity;
-        }
-
-        AddLine(product, quantity);
-        return quantity;
-    }
-
-    /// <summary>إبراز حقل الكمية لحظياً لتأكيد أن الزيادة وقعت في هذا السطر.</summary>
-    private static void FlashCell(Entry cell) => _ = FlashCellAsync(cell);
-
-    private static async Task FlashCellAsync(Entry cell)
-    {
-        Color original = cell.BackgroundColor;
-        cell.BackgroundColor = Color.FromArgb("#7BE0B0");
-        cell.TextColor = Color.FromArgb("#0B3B2A");
-
-        await Task.Delay(450);
-
-        cell.BackgroundColor = original;
-        cell.TextColor = Color.FromArgb("#34445C");
     }
 
     private void RenumberLines()
@@ -433,9 +332,7 @@ public partial class PurchaseInvoicePage : ContentPage
     {
         try
         {
-            // مصدر موحّد للموردين: الخادم أولاً ثم الجهاز (نفس مصدر صفحة «الموردين»)
-            PartySourceResult supplierSource = await PartySource.GetAsync(Party.Supplier);
-            List<Party> suppliers = supplierSource.Items;
+            List<Party> suppliers = await PartyRepository.Instance.GetAllAsync(Party.Supplier);
             if (suppliers.Count == 0)
             {
                 await DisplayAlertAsync("لا يوجد موردين", "سجّل الموردين أولاً من الداشبورد → الموردين.", "موافق");
@@ -699,8 +596,7 @@ public partial class PurchaseInvoicePage : ContentPage
 
         try
         {
-            // حفظ على الخادم أولاً ثم نسخها للجهاز (نفس مصدر المبيعات)
-            await PurchaseSource.CreateAsync(invoice, items);
+            await PurchaseInvoiceRepository.Instance.SaveInvoiceAsync(invoice, items);
         }
         catch (Exception)
         {
@@ -773,10 +669,4 @@ public partial class PurchaseInvoicePage : ContentPage
 
     private static string FormatAmount(double amount) =>
         amount.ToString("0.00", CultureInfo.InvariantCulture);
-
-    /// <summary>تنسيق الكمية: عدد صحيح بلا كسور عند القيم الصحيحة، وإلا رقم عشري.</summary>
-    private static string FormatQuantity(double quantity) =>
-        quantity == Math.Floor(quantity)
-            ? quantity.ToString("0", CultureInfo.InvariantCulture)
-            : FormatAmount(quantity);
 }

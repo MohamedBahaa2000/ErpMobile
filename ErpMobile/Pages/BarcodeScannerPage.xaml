@@ -8,7 +8,7 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#111827">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
         <Grid
             Padding="16,12"
             ColumnDefinitions="*,Auto"
@@ -60,67 +60,7 @@
                 LineBreakMode="TailTruncation" />
         </Grid>
 
-        <!-- عدّاد كمية الإضافة: يحدد كم وحدة تُضاف في كل مسح واحد -->
-        <Grid
-            Grid.Row="2"
-            Padding="16,8"
-            ColumnDefinitions="*,Auto,Auto,Auto"
-            ColumnSpacing="10"
-            BackgroundColor="#0B2450">
-            <Label
-                Text="كمية الإضافة لكل مسح"
-                FontSize="13"
-                TextColor="#BFD4F2"
-                VerticalOptions="Center" />
-
-            <Button
-                Grid.Column="1"
-                x:Name="QtyMinusButton"
-                Text="−"
-                FontSize="22"
-                FontAttributes="Bold"
-                WidthRequest="46"
-                HeightRequest="42"
-                Padding="0"
-                CornerRadius="10"
-                BackgroundColor="#1D4E89"
-                TextColor="White"
-                Clicked="OnQtyMinusClicked" />
-
-            <Border
-                Grid.Column="2"
-                WidthRequest="66"
-                Padding="6,6"
-                StrokeThickness="0"
-                StrokeShape="RoundRectangle 10"
-                BackgroundColor="#173B70"
-                VerticalOptions="Center">
-                <Label
-                    x:Name="QtyValueLabel"
-                    Text="1"
-                    FontSize="20"
-                    FontAttributes="Bold"
-                    TextColor="White"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center" />
-            </Border>
-
-            <Button
-                Grid.Column="3"
-                x:Name="QtyPlusButton"
-                Text="+"
-                FontSize="22"
-                FontAttributes="Bold"
-                WidthRequest="46"
-                HeightRequest="42"
-                Padding="0"
-                CornerRadius="10"
-                BackgroundColor="#25A36F"
-                TextColor="White"
-                Clicked="OnQtyPlusClicked" />
-        </Grid>
-
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="2">
             <zxing:CameraBarcodeReaderView
                 x:Name="CameraReader"
                 IsDetecting="True"

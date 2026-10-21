@@ -28,8 +28,7 @@ public partial class PartyFormPage : ContentPage
 
         if (_existing is null && PartyId > 0)
         {
-            // المعرّف هنا هو معرّف الخادم (لأن القائمة تأتي من الـ API)
-            _existing = await PartySource.GetByIdAsync(PartyId);
+            _existing = await PartyRepository.Instance.GetByIdAsync(PartyId);
         }
 
         FormTitleLabel.Text = _existing is null
@@ -117,16 +116,12 @@ public partial class PartyFormPage : ContentPage
                 OpeningBalance = openingBalance
             };
 
-            // إضافة: على الخادم أولاً ثم نسخها للجهاز (نفس مصدر قائمة العملاء)
-            Party? saved = await PartySource.CreateAsync(party);
-            if (saved is null)
+            bool added = await PartyRepository.Instance.AddAsync(party);
+            if (!added)
             {
-                await DisplayAlertAsync("الاسم مسجل", "يوجد سجل بنفس الاسم بالفعل، أو تعذّر الاتصال بالخادم.", "موافق");
+                await DisplayAlertAsync("الاسم مسجل", "يوجد سجل بنفس الاسم بالفعل.", "موافق");
                 return false;
             }
-
-            _existing = saved;
-            PartyId = saved.Id;
         }
         else
         {
@@ -142,7 +137,7 @@ public partial class PartyFormPage : ContentPage
             _existing.PaymentKind = PaymentKindPicker.SelectedItem?.ToString() ?? "نقدي";
             _existing.OpeningBalance = openingBalance;
 
-            await PartySource.UpdateAsync(_existing);
+            await PartyRepository.Instance.UpdateAsync(_existing);
         }
 
         return true;

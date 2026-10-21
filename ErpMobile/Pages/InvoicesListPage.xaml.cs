@@ -13,9 +13,6 @@ public partial class InvoicesListPage : ContentPage
     private Filter _filter = Filter.All;
     private List<Invoice> _all = [];
 
-    /// <summary>نتيجة آخر جلب — تحمل شريط حالة الاتصال بالخادم.</summary>
-    private InvoiceSourceResult _source = new();
-
     public InvoicesListPage()
     {
         InitializeComponent();
@@ -32,9 +29,8 @@ public partial class InvoicesListPage : ContentPage
     {
         try
         {
-            // مصدر موحّد: الخادم أولاً ثم المرآة المحلية (نفس مصدر الداشبورد)
-            _source = await InvoiceSource.GetAsync(100000);
-            _all = _source.Items;
+            // جلب كل الفواتير (رقم كبير = العرض الكامل)
+            _all = await InvoiceRepository.Instance.GetRecentAsync(100000);
         }
         catch (Exception)
         {
@@ -76,28 +72,6 @@ public partial class InvoicesListPage : ContentPage
         TotalLabel.Text = items.Sum(i => i.Total).ToString("0.00", CultureInfo.InvariantCulture);
 
         ListContainer.Children.Clear();
-
-        // شريط حالة الاتصال بالخادم (أخضر = من الـ API، أحمر = بيانات الجهاز)
-        if (!string.IsNullOrEmpty(_source.StatusMessage))
-        {
-            ListContainer.Children.Add(new Border
-            {
-                Padding = new Thickness(12, 8),
-                Margin = new Thickness(0, 0, 0, 10),
-                BackgroundColor = Color.FromArgb(_source.FromApi ? "#EAF7F0" : "#FDEEEE"),
-                Stroke = Color.FromArgb(_source.StatusColor),
-                StrokeThickness = 1,
-                StrokeShape = new RoundRectangle { CornerRadius = 10 },
-                Content = new Label
-                {
-                    Text = _source.StatusMessage,
-                    FontSize = 12,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromArgb(_source.StatusColor),
-                    HorizontalTextAlignment = TextAlignment.Center
-                }
-            });
-        }
 
         if (items.Count == 0)
         {

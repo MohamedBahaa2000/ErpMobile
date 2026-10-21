@@ -13,15 +13,15 @@ public static class ApiConfig
     /// false  = وضع محلي (تسجيل دخول admin/123456 بدون خادم) — الوضع الحالي.
     /// true   = الاتصال بالخادم الحقيقي عبر الـ API بالأسفل.
     /// </summary>
-    public const bool UseApi = true;
+    public const bool UseApi = false;
 
     // ═══════════════════ الرابط الأساسي ═══════════════════
     /// <summary>الرابط الأساسي للخادم — غيّره هنا فقط.</summary>
-    public const string BaseUrl = "http://192.168.100.70:5034";
+    public const string BaseUrl = "https://api.example.com";
 
     // ═══════════════════ المصادقة (Login) ═══════════════════
     /// <summary>تسجيل الدخول: POST {BaseUrl}{LoginEndpoint}</summary>
-    public const string LoginEndpoint = "/api/Auth/login";
+    public const string LoginEndpoint = "/api/auth/login";
 
     /// <summary>تجديد التوكن: POST</summary>
     public const string RefreshTokenEndpoint = "/api/auth/refresh";
@@ -35,9 +35,6 @@ public static class ApiConfig
     // ═══════════════════ الأصناف ═══════════════════
     public const string ProductsEndpoint = "/api/products";
 
-    /// <summary>قائمة الأصناف كما يرجّعها الخادم: GET /api/Items → [{id,name,unit,price}]</summary>
-    public const string ItemsEndpoint = "/api/Items";
-
     /// <summary>بحث بالباركود: GET {ProductByBarcodeEndpoint}/{barcode}</summary>
     public const string ProductByBarcodeEndpoint = "/api/products/barcode";
 
@@ -49,11 +46,11 @@ public static class ApiConfig
     public const string SuppliersEndpoint = "/api/suppliers";
 
     // ═══════════════════ الفواتير ═══════════════════
-    /// <summary>فواتير المبيعات (GET/POST/PUT/DELETE).</summary>
-    public const string InvoicesEndpoint = "/api/Invoices";
+    /// <summary>فواتير المبيعات.</summary>
+    public const string InvoicesEndpoint = "/api/invoices";
 
-    /// <summary>فواتير المشتريات (GET/POST/PUT/DELETE).</summary>
-    public const string PurchaseInvoicesEndpoint = "/api/PurchaseInvoices";
+    /// <summary>فواتير المشتريات.</summary>
+    public const string PurchaseInvoicesEndpoint = "/api/purchase-invoices";
 
     /// <summary>تقرير المبيعات (تحليلات): GET ?from=&amp;to=</summary>
     public const string SalesReportEndpoint = "/api/reports/sales";
