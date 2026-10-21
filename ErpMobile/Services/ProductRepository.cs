@@ -91,6 +91,15 @@ public sealed class ProductRepository
         return true;
     }
 
+    /// <summary>حذف صنف من قاعدة الجهاز بالمعرّف — يعيد true إذا وُجد وحُذف.</summary>
+    public async Task<bool> DeleteAsync(int id)
+    {
+        await InitializeAsync();
+
+        int affected = await _database.DeleteAsync<Product>(id);
+        return affected > 0;
+    }
+
     private async Task InitializeAsync()
     {
         if (_initialized)
