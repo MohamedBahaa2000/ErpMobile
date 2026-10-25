@@ -499,10 +499,20 @@ public partial class InvoicePage : ContentPage
         ];
         string[] fieldCaptions = ["الكمية", "السعر", "خصم %", "مبلغ الخصم"];
 
+        // أوزان غير متساوية: عمودا «السعر» و«مبلغ الخصم» أعرض لأن أرقامهما أطول،
+        // فلا يُقتطع الرقم على الشاشات الضيقة (موبايل).
+        GridLength[] fieldWidths =
+        [
+            new GridLength(0.8, GridUnitType.Star),
+            new GridLength(1.2, GridUnitType.Star),
+            new GridLength(0.9, GridUnitType.Star),
+            new GridLength(1.1, GridUnitType.Star)
+        ];
+
         var fields = MakeCardGrid();
         for (int column = 0; column < fieldControls.Length; column++)
         {
-            fields.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            fields.ColumnDefinitions.Add(new ColumnDefinition { Width = fieldWidths[column] });
 
             var cell = new VerticalStackLayout { Spacing = 3 };
             cell.Children.Add(new Label
