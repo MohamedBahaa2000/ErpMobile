@@ -147,10 +147,19 @@ public partial class ReloadOverlay : ContentView
         TitleLabel.TextColor = Color.FromArgb("#173B70");
     }
 
-    /// <summary>إظهار الحمّلة وتشغيل الحركات.</summary>
+    /// <summary>
+    /// إظهار الحمّلة وتشغيل الحركات.
+    ///
+    /// ⚠ مهم على ويندوز: الحمّلة لازم تكون «ظاهرة» هي نفسها (مش شريطها جوّه فقط)،
+    ///   وإلا تبقى الطبقة فوق الصفحة وبتبتلع ضغط الماوس على كل الأزرار.
+    ///   أثناء التحميل تمنع الضغط عمد (InputTransparent=False) — ده السلوك المطلوب كطبقة تغطية.
+    /// </summary>
     public void Show()
     {
         ResetCard();
+
+        IsVisible = true;
+        InputTransparent = false;
 
         Root.Opacity = 1;
         Root.IsVisible = true;
@@ -164,11 +173,18 @@ public partial class ReloadOverlay : ContentView
         _ = Card.ScaleToAsync(1, 320, Easing.SpringOut);
     }
 
-    /// <summary>إيقاف الحركات وإخفاء الحمّلة.</summary>
+    /// <summary>
+    /// إيقاف الحركات وإخفاء الحمّلة.
+    ///
+    /// ⚠ لازم IsVisible=False على الـ ContentView نفسه (مش على داخليه فقط)
+    ///   عشان الطبقة تبطل تشارك في الـ hit-testing وترجّع كل الأزرار تشتغل.
+    /// </summary>
     public void Hide()
     {
         StopAnimations();
         Root.IsVisible = false;
+        IsVisible = false;
+        InputTransparent = true;
         Card.Opacity = 0;
         Card.Scale = 0.92;
     }
