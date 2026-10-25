@@ -9,21 +9,28 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
-        <!-- الشريط العلوي -->
+        <!-- الشريط العلوي — تدرّج أنيق + أزرار مدوّرة (Pills) -->
         <Grid
             Padding="16,12"
             ColumnDefinitions="Auto,*,Auto"
-            ColumnSpacing="10"
-            BackgroundColor="#173B70">
+            ColumnSpacing="10">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#173B70" Offset="0.0" />
+                    <GradientStop Color="#2E5EA8" Offset="1.0" />
+                </LinearGradientBrush>
+            </Grid.Background>
+
             <Button
                 Text="✕"
-                WidthRequest="44"
-                HeightRequest="38"
+                WidthRequest="40"
+                HeightRequest="40"
                 Padding="0"
-                CornerRadius="8"
+                CornerRadius="20"
+                FontSize="15"
+                FontAttributes="Bold"
                 BackgroundColor="#FFFFFF"
                 TextColor="#173B70"
-                FontAttributes="Bold"
                 Clicked="OnCloseClicked" />
             <Label
                 Grid.Column="1"
@@ -37,12 +44,13 @@
             <Button
                 Grid.Column="2"
                 Text="＋ إضافة"
-                HeightRequest="38"
-                Padding="14,4"
-                CornerRadius="10"
-                BackgroundColor="#6B62C7"
-                TextColor="White"
+                HeightRequest="40"
+                Padding="18,0"
+                CornerRadius="20"
+                FontSize="14"
                 FontAttributes="Bold"
+                BackgroundColor="#7B74D6"
+                TextColor="White"
                 Clicked="OnAddClicked" />
         </Grid>
 
@@ -52,19 +60,27 @@
             Padding="14,10"
             ColumnDefinitions="*">
             <Border
-                Padding="10,0"
+                Padding="12,0"
                 BackgroundColor="White"
                 Stroke="#D5D4EC"
                 StrokeThickness="1"
-                StrokeShape="RoundRectangle 10">
-                <Entry
-                    x:Name="SearchEntry"
-                    Placeholder="ابحث بالاسم أو الباركود أو الوحدة..."
-                    FontSize="13"
-                    TextColor="#192D4A"
-                    PlaceholderColor="#9AA4B8"
-                    HeightRequest="44"
-                    TextChanged="OnSearchChanged" />
+                StrokeShape="RoundRectangle 22">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label
+                        Text="🔍"
+                        FontSize="14"
+                        TextColor="#9AA4B8"
+                        VerticalOptions="Center" />
+                    <Entry
+                        Grid.Column="1"
+                        x:Name="SearchEntry"
+                        Placeholder="ابحث بالاسم أو الباركود أو الوحدة..."
+                        FontSize="13"
+                        TextColor="#192D4A"
+                        PlaceholderColor="#9AA4B8"
+                        HeightRequest="44"
+                        TextChanged="OnSearchChanged" />
+                </Grid>
             </Border>
         </Grid>
 
@@ -85,33 +101,39 @@
                 HorizontalTextAlignment="Center" />
         </Border>
 
-        <!-- ملخص -->
+        <!-- ملخّص — بطاقتان بأيقونة وقيمة بارزة -->
         <Grid
             Grid.Row="3"
             Padding="14,0,14,4"
             ColumnDefinitions="*,*"
             ColumnSpacing="10">
             <Border
-                Padding="12,9"
+                Padding="14,11"
                 BackgroundColor="#F0EFFC"
                 Stroke="#D5D4EC"
                 StrokeThickness="1"
-                StrokeShape="RoundRectangle 12">
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="عدد الأصناف" FontSize="11" TextColor="#7B74B4" />
-                    <Label x:Name="CountLabel" Text="0" FontSize="17" FontAttributes="Bold" TextColor="#6B62C7" />
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Spacing="3">
+                    <HorizontalStackLayout Spacing="5">
+                        <Label Text="📦" FontSize="12" />
+                        <Label Text="عدد الأصناف" FontSize="11" TextColor="#7B74B4" />
+                    </HorizontalStackLayout>
+                    <Label x:Name="CountLabel" Text="0" FontSize="19" FontAttributes="Bold" TextColor="#6B62C7" />
                 </VerticalStackLayout>
             </Border>
             <Border
                 Grid.Column="1"
-                Padding="12,9"
+                Padding="14,11"
                 BackgroundColor="#EAF9F0"
                 Stroke="#A8E3C4"
                 StrokeThickness="1"
-                StrokeShape="RoundRectangle 12">
-                <VerticalStackLayout Spacing="2">
-                    <Label Text="قيمة المخزون (سعر التجزئة)" FontSize="11" TextColor="#4A8A68" />
-                    <Label x:Name="TotalValueLabel" Text="0.00" FontSize="17" FontAttributes="Bold" TextColor="#12A15B" />
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Spacing="3">
+                    <HorizontalStackLayout Spacing="5">
+                        <Label Text="💰" FontSize="12" />
+                        <Label Text="قيمة المخزون (تجزئة)" FontSize="11" TextColor="#4A8A68" />
+                    </HorizontalStackLayout>
+                    <Label x:Name="TotalValueLabel" Text="0.00" FontSize="19" FontAttributes="Bold" TextColor="#12A15B" />
                 </VerticalStackLayout>
             </Border>
         </Grid>
