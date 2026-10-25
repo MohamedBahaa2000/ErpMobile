@@ -126,9 +126,16 @@
                     TextColor="#8A91A6"
                     HorizontalTextAlignment="Center"
                     IsVisible="False" />
-                <VerticalStackLayout
+                <!--
+                    FlexLayout بدل VerticalStackLayout: على الموبايل يبقى عمود واحد،
+                    وعلى الشاشات العريضة (ويندوز) تُصفّ البطاقات في ٣-٤ أعمدة.
+                -->
+                <FlexLayout
                     x:Name="ListContainer"
-                    Spacing="10" />
+                    Direction="Row"
+                    Wrap="Wrap"
+                    JustifyContent="Start"
+                    AlignItems="Start" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

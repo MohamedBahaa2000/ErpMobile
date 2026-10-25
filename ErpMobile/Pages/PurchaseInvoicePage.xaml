@@ -195,7 +195,7 @@
                         <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="6">
                             <Label Text="Barcode" FontSize="12" FontAttributes="Bold" TextColor="#555B72" VerticalOptions="Center" />
                             <Border Grid.Column="1" Padding="8,0" BackgroundColor="#F2FFD8" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
-                                <Entry x:Name="BarcodeEntry" Placeholder="امسح الباركود أو أدخل كود الصنف" Style="{StaticResource FieldEntryStyle}" />
+                                <Entry x:Name="BarcodeEntry" Placeholder="امسح الباركود أو أدخل كود الصنف" ReturnType="Go" Style="{StaticResource FieldEntryStyle}" />
                             </Border>
                             <Button
                                 Grid.Column="2"

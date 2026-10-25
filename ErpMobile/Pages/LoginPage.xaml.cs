@@ -1,4 +1,5 @@
 using ErpMobile.Services;
+using Microsoft.Maui.Controls.PlatformConfiguration;
 
 namespace ErpMobile.Pages;
 
@@ -8,6 +9,14 @@ public partial class LoginPage : ContentPage
     {
         InitializeComponent();
 
+#if WINDOWS
+        // ── إصلاح: صورة الهيدر لا تظهر على الويندوز ──
+        // التطبيق غير مُحزَّم (Unpackaged)، فمصدر ms-appx الافتراضي في MAUI لا
+        // يعثر على ملفات الصور. نقرأها هنا من مجلد الملف التنفيذي مباشرةً —
+        // كود خاص بالويندوز فقط، ولا يمسّ أندرويد إطلاقاً.
+        HeroImage.Source = ImageSource.FromStream(OpenHeroImageFromDisk);
+#endif
+
         // ملء تلقائي لبيانات المستخدم المحفوظة مسبقاً
         if (!string.IsNullOrEmpty(SessionManager.SavedUsername))
         {
@@ -16,6 +25,40 @@ public partial class LoginPage : ContentPage
 
         RememberCheck.IsChecked = SessionManager.IsRemembered;
     }
+
+#if WINDOWS
+    /// <summary>
+    /// يفتح صورة الهيدر من مجلد التشغيل — بأفضل مقاس متاح لدقة الشاشة.
+    /// يُستدعى من MAUI عند الحاجة، ويعيد فتح ملف جديد في كل مرة.
+    /// </summary>
+    private static Stream OpenHeroImageFromDisk()
+    {
+        string baseDirectory = AppContext.BaseDirectory;
+
+        // نفضّل المقاس الأقرب فوق 150% (دقة شاشة الويندوز الشائعة) لحدة أعلى
+        string[] candidates =
+        [
+            "login_hero.scale-150.png",
+            "login_hero.scale-200.png",
+            "login_hero.scale-125.png",
+            "login_hero.scale-400.png",
+            "login_hero.scale-100.png",
+            "login_hero.png"
+        ];
+
+        foreach (string fileName in candidates)
+        {
+            string path = Path.Combine(baseDirectory, fileName);
+            if (File.Exists(path))
+            {
+                return File.OpenRead(path);
+            }
+        }
+
+        throw new FileNotFoundException(
+            "لم يتم العثور على صورة الهيدر login_hero بجانب الملف التنفيذي.");
+    }
+#endif
 
     private bool _autoLoginStarted;
 
@@ -57,6 +100,12 @@ public partial class LoginPage : ContentPage
             }
         }
     }
+
+    /// <summary>
+    /// عند الضغط على Enter في حقل اسم المستخدم → الانتقال إلى حقل كلمة المرور.
+    /// </summary>
+    private void OnUsernameCompleted(object sender, EventArgs e)
+        => PasswordEntry.Focus();
 
     private async void OnLoginClicked(object sender, EventArgs e)
     {

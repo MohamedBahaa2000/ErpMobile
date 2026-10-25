@@ -75,6 +75,13 @@ public partial class PurchaseInvoicePage : ContentPage
         // ماسح الباركود USB: يلتقط الباركود تلقائياً من غير أي نقر
         _scannerListener = new ScannerInputListener(BarcodeEntry, AddProductByBarcodeAsync);
 
+#if WINDOWS
+        // على الويندوز يُخفى زرار «مسح» بالكاميرا (مسح الكاميرا للهاتف فقط —
+        // شاشة الكاميرا تُسبّب خطأ على ويندوز). لا يؤثر على أندرويد إطلاقاً.
+        ScanButton.IsVisible = false;
+        _scannerListener.RefocusAfterCommit = true;
+#endif
+
         _ready = true;
     }
 

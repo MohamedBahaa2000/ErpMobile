@@ -260,6 +260,7 @@
                                 <Entry
                                     x:Name="InvoiceBarcodeEntry"
                                     Placeholder="امسح الباركود أو أدخل كود الصنف"
+                                    ReturnType="Go"
                                     Style="{StaticResource FieldEntryStyle}" />
                             </Border>
                             <Button
@@ -282,6 +283,55 @@
                                 TextColor="White"
                                 Clicked="OnAddBarcodeClicked" />
                         </Grid>
+
+                        <!-- ══ بحث عن الصنف بالاسم (تحت الباركود) ══ -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                            <Label
+                                Text="اسم الصنف"
+                                FontSize="12"
+                                FontAttributes="Bold"
+                                TextColor="#555B72"
+                                VerticalOptions="Center" />
+                            <Border
+                                Grid.Column="1"
+                                Padding="8,0"
+                                BackgroundColor="White"
+                                Stroke="#D5D4EC"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 5">
+                                <Entry
+                                    x:Name="ItemSearchEntry"
+                                    Placeholder="اكتب جزءاً من اسم الصنف للبحث..."
+                                    FontSize="13"
+                                    TextColor="#34445C"
+                                    PlaceholderColor="#9AA4B8"
+                                    ReturnType="Search"
+                                    HeightRequest="40"
+                                    TextChanged="OnItemSearchChanged" />
+                            </Border>
+                        </Grid>
+
+                        <!-- نتائج البحث عن الصنف -->
+                        <Border
+                            x:Name="SearchResultsBorder"
+                            Padding="0"
+                            BackgroundColor="White"
+                            Stroke="#C9D3E6"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8"
+                            IsVisible="False">
+                            <VerticalStackLayout Spacing="0">
+                                <Label
+                                    x:Name="SearchResultsTitle"
+                                    Padding="10,7"
+                                    FontSize="11"
+                                    FontAttributes="Bold"
+                                    TextColor="#5A6480"
+                                    BackgroundColor="#EEF2FA"
+                                    Text="نتائج البحث" />
+                                <VerticalStackLayout x:Name="SearchResultsContainer" Spacing="0" />
+                            </VerticalStackLayout>
+                        </Border>
 
                         <Label
                             x:Name="ScanStatusLabel"

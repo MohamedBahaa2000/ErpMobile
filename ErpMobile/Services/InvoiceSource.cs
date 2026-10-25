@@ -114,6 +114,56 @@ public static class InvoiceSource
         return true;
     }
 
+    /// <summary>
+    /// تعديل فاتورة موجودة — على الخادم أولاً ثم على الجهاز.
+    ///
+    /// ملاحظة مهمة: Id المحلي لا يطابق Id الخادم، لذلك نجلب الفاتورة من الخادم
+    /// برقمها (number/{n}) لنحصل على معرّفها الحقيقي ثم نرسل PUT.
+    /// </summary>
+    public static async Task<Invoice?> UpdateAsync(Invoice invoice, IEnumerable<InvoiceItem> items)
+    {
+        List<InvoiceItem> itemList = items.ToList();
+
+        if (ApiConfig.UseApi)
+        {
+            try
+            {
+                ApiInvoice? server = await ApiService.GetInvoiceByNumberAsync(invoice.InvoiceNumber);
+
+                if (server is not null && server.Id > 0)
+                {
+                    ApiInvoice payload = ApiInvoice.FromInvoice(invoice, itemList);
+                    payload.Id = server.Id;
+
+                    ApiInvoice? saved = await ApiService.UpdateInvoiceAsync(server.Id, payload);
+
+                    if (saved is not null)
+                    {
+                        Invoice serverInvoice = saved.ToInvoice();
+                        await UpsertLocalAsync(serverInvoice, saved.ToItems(0));
+                        return serverInvoice;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // الخادم غير متاح → نحفظ محلياً حتى لا يفقد المستخدم تعديله
+            }
+        }
+
+        // محلياً: تحديث رأس الفاتورة ثم إعادة كتابة بنودها بالكامل
+        await InvoiceRepository.Instance.UpdateAsync(invoice);
+        await InvoiceRepository.Instance.DeleteItemsAsync(invoice.Id);
+
+        foreach (InvoiceItem item in itemList)
+        {
+            item.InvoiceId = invoice.Id;
+            await InvoiceRepository.Instance.InsertItemAsync(item);
+        }
+
+        return invoice;
+    }
+
     // ═══════════════ المرآة المحلية ═══════════════
 
     /// <summary>

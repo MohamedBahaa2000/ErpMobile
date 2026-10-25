@@ -381,6 +381,32 @@ public static class ApiService
         await DeleteAsync($"{ApiConfig.InvoicesEndpoint}/{id}");
     }
 
+    /// <summary>تعديل فاتورة على الخادم (PUT {InvoicesEndpoint}/{id}) — تشمل بنودها.</summary>
+    public static async Task<ApiInvoice?> UpdateInvoiceAsync(int id, ApiInvoice invoice)
+    {
+        if (!ApiConfig.UseApi)
+        {
+            return null;
+        }
+
+        return await PutAsync<ApiInvoice, ApiInvoice>(
+            $"{ApiConfig.InvoicesEndpoint}/{id}", invoice);
+    }
+
+    /// <summary>
+    /// فاتورة برقمها من الخادم (GET {InvoicesEndpoint}/number/{n}).
+    /// نحتاجها عند التعديل: Id المحلي لا يطابق Id الخادم، فنجلب المعرّف الحقيقي أولاً.
+    /// </summary>
+    public static async Task<ApiInvoice?> GetInvoiceByNumberAsync(int number)
+    {
+        if (!ApiConfig.UseApi)
+        {
+            return null;
+        }
+
+        return await GetAsync<ApiInvoice>($"{ApiConfig.InvoicesEndpoint}/number/{number}");
+    }
+
     // ═══════════════ عمليات فواتير المشتريات ═══════════════
 
     /// <summary>كل فواتير المشتريات من الخادم (GET {PurchaseInvoicesEndpoint}).</summary>

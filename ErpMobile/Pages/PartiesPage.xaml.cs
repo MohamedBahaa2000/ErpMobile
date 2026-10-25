@@ -54,10 +54,9 @@ public partial class PartiesPage : ContentPage
         // شريط حالة الاتصال بالخادم (أخضر = من الـ API، أحمر = بيانات الجهاز)
         if (!string.IsNullOrEmpty(_source.StatusMessage))
         {
-            ListContainer.Children.Add(new Border
+            var statusBanner = new Border
             {
                 Padding = new Thickness(12, 8),
-                Margin = new Thickness(0, 0, 0, 10),
                 BackgroundColor = Color.FromArgb(_source.FromApi ? "#EAF7F0" : "#FDEEEE"),
                 Stroke = Color.FromArgb(_source.StatusColor),
                 StrokeThickness = 1,
@@ -70,14 +69,18 @@ public partial class PartiesPage : ContentPage
                     TextColor = Color.FromArgb(_source.StatusColor),
                     HorizontalTextAlignment = TextAlignment.Center
                 }
-            });
+            };
+
+            // شريط كامل العرض في كلتا الحالتين (موبايل وويندوز)
+            ResponsiveCards.Apply(statusBanner, ResponsiveCards.FullWidthBasis);
+            ListContainer.Children.Add(statusBanner);
         }
 
         CountLabel.Text = $"{_parties.Count} سجل";
 
         if (_parties.Count == 0)
         {
-            ListContainer.Children.Add(new Border
+            var emptyBanner = new Border
             {
                 Padding = new Thickness(16, 22),
                 BackgroundColor = Colors.White,
@@ -91,13 +94,18 @@ public partial class PartiesPage : ContentPage
                     TextColor = Color.FromArgb("#8995A7"),
                     HorizontalTextAlignment = TextAlignment.Center
                 }
-            });
+            };
+
+            ResponsiveCards.Apply(emptyBanner, ResponsiveCards.FullWidthBasis);
+            ListContainer.Children.Add(emptyBanner);
             return;
         }
 
         foreach (Party party in _parties)
         {
-            ListContainer.Children.Add(BuildCard(party));
+            var card = BuildCard(party);
+            ResponsiveCards.Apply(card);
+            ListContainer.Children.Add(card);
         }
     }
 

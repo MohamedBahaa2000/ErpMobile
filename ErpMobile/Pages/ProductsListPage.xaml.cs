@@ -162,6 +162,8 @@ public partial class ProductsListPage : ContentPage
         tap.CommandParameter = product;
         border.GestureRecognizers.Add(tap);
 
+        ResponsiveCards.Apply(border);
+
         return border;
     }
 

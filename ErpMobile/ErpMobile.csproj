@@ -53,12 +53,13 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
-	  <AndroidSigningKeyStore>123456</AndroidSigningKeyStore>
-	  <AndroidKeyStore>True</AndroidKeyStore>
-	  <AndroidSigningStorePass>123456</AndroidSigningStorePass>
-	  <AndroidPackageFormat>aab</AndroidPackageFormat>
-	  <AndroidUseAapt2>True</AndroidUseAapt2>
-	  <AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
+		<!-- توقيع الـ APK بنفس مفتاح النسخ المطوّرة (debug keystore) عشان يتثبت
+		     فوق التطبيق الموجود على الجهاز بدون INSTALL_FAILED_UPDATE_INCOMPATIBLE -->
+		<AndroidKeyStore>False</AndroidKeyStore>
+		<!-- ننتج APK (مش AAB) عشان يتسحب مباشرة بـ adb install -->
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidUseAapt2>True</AndroidUseAapt2>
+		<AndroidCreatePackagePerAbi>False</AndroidCreatePackagePerAbi>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -73,6 +74,14 @@
 		<!-- لوجو SVG القديم خارج المعالجة: أداة التحويل بتكسر على نصوصه، واللوجو الآن مرسوم بعناصر XAML أصلية -->
 		<MauiImage Remove="Resources\Images\select_erp_logo.svg" />
 		<MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
+		<!--
+			صورة هيدر صفحة الدخول: لازم Resize=True عشان أداة التحجيم تولّد مقاسات
+			(scale-100/125/150/200/400). بدونها يتولّد ملف واحد .scale-100 فقط، وعلى
+			الويندوز شاشة الـ DPI = 150% يبحث التطبيق عن scale-150 ثم login_hero.png
+			ولا يجد أيٍّ منهما → الصورة لا تظهر أصلاً (على أندرويد تظهر لأن drawable
+			بيحتفظ بالاسم العادي login_hero.png).
+		-->
+		<MauiImage Update="Resources\Images\login_hero.png" Resize="True" BaseSize="800,738" />
 		
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />

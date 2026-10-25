@@ -80,10 +80,9 @@ public partial class InvoicesListPage : ContentPage
         // شريط حالة الاتصال بالخادم (أخضر = من الـ API، أحمر = بيانات الجهاز)
         if (!string.IsNullOrEmpty(_source.StatusMessage))
         {
-            ListContainer.Children.Add(new Border
+            var statusBanner = new Border
             {
                 Padding = new Thickness(12, 8),
-                Margin = new Thickness(0, 0, 0, 10),
                 BackgroundColor = Color.FromArgb(_source.FromApi ? "#EAF7F0" : "#FDEEEE"),
                 Stroke = Color.FromArgb(_source.StatusColor),
                 StrokeThickness = 1,
@@ -96,7 +95,10 @@ public partial class InvoicesListPage : ContentPage
                     TextColor = Color.FromArgb(_source.StatusColor),
                     HorizontalTextAlignment = TextAlignment.Center
                 }
-            });
+            };
+
+            ResponsiveCards.Apply(statusBanner, ResponsiveCards.FullWidthBasis);
+            ListContainer.Children.Add(statusBanner);
         }
 
         if (items.Count == 0)
@@ -189,6 +191,8 @@ public partial class InvoicesListPage : ContentPage
         tap.CommandParameter = invoice;
         border.GestureRecognizers.Add(tap);
 
+        ResponsiveCards.Apply(border);
+
         return border;
     }
 
@@ -199,16 +203,9 @@ public partial class InvoicesListPage : ContentPage
             return;
         }
 
-        string paidStatus = invoice.Remaining <= 0.005
-            ? "مدفوعة بالكامل"
-            : $"مدفوع: {invoice.Paid.ToString("0.00", CultureInfo.InvariantCulture)}  •  متبقي: {invoice.Remaining.ToString("0.00", CultureInfo.InvariantCulture)}";
-
-        await DisplayAlertAsync(
-            $"فاتورة #{invoice.InvoiceNumber}",
-            $"العميل: {invoice.Customer}\nالتاريخ: {invoice.InvoiceDate}\n" +
-            $"نوع الفاتورة: {invoice.InvoiceType}\n" +
-            $"الإجمالي: {invoice.Total.ToString("0.00", CultureInfo.InvariantCulture)}\n{paidStatus}",
-            "حسناً");
+        // بدلاً من الحوار البسيط: صفحة كاملة لعرض التفاصيل والتعديل على الفاتورة
+        await Shell.Current.GoToAsync(
+            $"{nameof(InvoiceDetailsPage)}?num={invoice.InvoiceNumber}");
     }
 
     private void OnSearchChanged(object? sender, TextChangedEventArgs e) => Render();

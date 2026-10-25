@@ -114,6 +114,16 @@ public sealed class InvoiceRepository
         return await _database.Table<InvoiceItem>().ToListAsync();
     }
 
+    /// <summary>بنود فاتورة واحدة (لعرض تفاصيلها وتعديلها).</summary>
+    public async Task<List<InvoiceItem>> GetItemsAsync(int invoiceId)
+    {
+        await InitializeAsync();
+        return await _database
+            .Table<InvoiceItem>()
+            .Where(item => item.InvoiceId == invoiceId)
+            .ToListAsync();
+    }
+
     private async Task InitializeAsync()
     {
         if (_initialized)

@@ -7,190 +7,210 @@
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F3F6FC">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="0">
+    <!--
+        ══════════════════════════════════════════════════════════════
+         صفحة ثابتة تماماً — بدون أي تمرير (Scroll).
+         Grid من صفّين:
+           • الصف الأول: صورة الهيدر بارتفاع ثابت (300dp)
+           • الصف الثاني: باقي المساحة (*) → البطاقة بتوسّطها عمودياً
+         كده المحتوى ما يزحفش أبداً حتى على الشاشات القصيرة.
+        ══════════════════════════════════════════════════════════════
+    -->
+    <Grid RowDefinitions="300,*">
 
-            <Grid HeightRequest="330">
-                <!-- صورة الخلفية (تحت اللوجو) — مجلس أعمال احترافي -->
-                <Image Source="login_hero" Aspect="AspectFill" />
+        <!-- ═══════════════ الهيدر ═══════════════ -->
+        <Grid Grid.Row="0">
+            <!-- صورة الخلفية (تحت اللوجو) — مجلس أعمال احترافي -->
+            <Image x:Name="HeroImage" Source="login_hero" Aspect="AspectFill" />
 
-                <!-- تدرّج أزرق مميّز: غامق وكثيف في الأعلى → يندمج مع خلفية الصفحة في الأسفل -->
-                <BoxView>
-                    <BoxView.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#F01408B8" Offset="0.0" />
-                            <GradientStop Color="#B32118D8" Offset="0.28" />
-                            <GradientStop Color="#662E7BEA" Offset="0.58" />
-                            <GradientStop Color="#2E36AEEA" Offset="0.82" />
-                            <GradientStop Color="#FFF3F6FC" Offset="1.0" />
-                        </LinearGradientBrush>
-                    </BoxView.Background>
-                </BoxView>
-
-                <VerticalStackLayout
-                    Padding="24,20"
-                    Spacing="11"
-                    HorizontalOptions="Center"
-                    VerticalOptions="Center">
-
-                    <Border
-                        Padding="15,12"
-                        BackgroundColor="White"
-                        StrokeThickness="0"
-                        StrokeShape="RoundRectangle 18">
-                        <Border.Shadow>
-                            <Shadow Brush="#253B65" Offset="0,8" Radius="20" Opacity="0.18" />
-                        </Border.Shadow>
-                        <local:SelectLogoView FontSize="34" />
-                    </Border>
-
-                    <Label
-                        Text="إدارة أعمالك أصبحت أسهل"
-                        FontSize="19"
-                        FontAttributes="Bold"
-                        TextColor="White"
-                        HorizontalTextAlignment="Center" />
-
-                    <Label
-                        Text="الحسابات  •  المخازن  •  المبيعات"
-                        FontSize="12"
-                        TextColor="#E5EDFF"
-                        HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
-            </Grid>
+            <!-- تدرّج أزرق مميّز: غامق وكثيف في الأعلى → يندمج مع خلفية الصفحة في الأسفل -->
+            <BoxView>
+                <BoxView.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#F01408B8" Offset="0.0" />
+                        <GradientStop Color="#B32118D8" Offset="0.28" />
+                        <GradientStop Color="#662E7BEA" Offset="0.58" />
+                        <GradientStop Color="#2E36AEEA" Offset="0.82" />
+                        <GradientStop Color="#FFF3F6FC" Offset="1.0" />
+                    </LinearGradientBrush>
+                </BoxView.Background>
+            </BoxView>
 
             <VerticalStackLayout
-                Padding="24,20,24,36"
-                Spacing="16"
-                BackgroundColor="#F3F6FC">
+                Padding="24,16"
+                Spacing="9"
+                HorizontalOptions="Center"
+                VerticalOptions="Center">
 
                 <Border
-                    Padding="24"
+                    Padding="15,12"
                     BackgroundColor="White"
-                    Stroke="#E6EBF4"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 24">
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18">
                     <Border.Shadow>
-                        <Shadow Brush="#253B65" Offset="0,8" Radius="22" Opacity="0.08" />
+                        <Shadow Brush="#253B65" Offset="0,8" Radius="20" Opacity="0.18" />
                     </Border.Shadow>
-
-                    <VerticalStackLayout Spacing="17" FlowDirection="RightToLeft">
-
-                        <VerticalStackLayout Spacing="5">
-                            <Label
-                                Text="تسجيل الدخول"
-                                FontSize="25"
-                                FontAttributes="Bold"
-                                TextColor="#192D4A"
-                                HorizontalTextAlignment="Center" />
-
-                            <Label
-                                Text="أدخل بياناتك للمتابعة إلى النظام"
-                                FontSize="13"
-                                TextColor="#7B8799"
-                                HorizontalTextAlignment="Center" />
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                Text="اسم المستخدم"
-                                FontSize="13"
-                                FontAttributes="Bold"
-                                TextColor="#34445C" />
-
-                            <Border
-                                Padding="12,2"
-                                BackgroundColor="#FBFCFE"
-                                Stroke="#DCE3ED"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 12">
-                                <Entry
-                                    x:Name="UsernameEntry"
-                                    Placeholder="أدخل اسم المستخدم"
-                                    FlowDirection="RightToLeft"
-                                    TextColor="#192D4A"
-                                    PlaceholderColor="#A0AABD"
-                                    ClearButtonVisibility="WhileEditing"
-                                    HeightRequest="48" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="8">
-                            <Label
-                                Text="كلمة المرور"
-                                FontSize="13"
-                                FontAttributes="Bold"
-                                TextColor="#34445C" />
-
-                            <Border
-                                Padding="12,2"
-                                BackgroundColor="#FBFCFE"
-                                Stroke="#DCE3ED"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 12">
-                                <Entry
-                                    x:Name="PasswordEntry"
-                                    Placeholder="أدخل كلمة المرور"
-                                    IsPassword="True"
-                                    FlowDirection="RightToLeft"
-                                    TextColor="#192D4A"
-                                    PlaceholderColor="#A0AABD"
-                                    HeightRequest="48" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <!-- تذكّرني + نسيت كلمة المرور -->
-                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                            <CheckBox
-                                x:Name="RememberCheck"
-                                VerticalOptions="Center"
-                                Color="#2458F2" />
-                            <Label
-                                Grid.Column="1"
-                                Text="تذكّرني على هذا الجهاز"
-                                FontSize="13"
-                                TextColor="#34445C"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="2"
-                                Text="نسيت كلمة المرور؟"
-                                FontSize="12"
-                                TextColor="#2458F2"
-                                VerticalOptions="Center" />
-                        </Grid>
-
-                        <Label
-                            x:Name="ErrorLabel"
-                            Text=""
-                            TextColor="#D93636"
-                            FontSize="12"
-                            IsVisible="False" />
-
-                        <Button
-                            x:Name="LoginButton"
-                            Text="تسجيل الدخول"
-                            HeightRequest="54"
-                            CornerRadius="14"
-                            TextColor="White"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            Clicked="OnLoginClicked">
-                            <Button.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#2454E9" Offset="0.0" />
-                                    <GradientStop Color="#3479ED" Offset="1.0" />
-                                </LinearGradientBrush>
-                            </Button.Background>
-                        </Button>
-                    </VerticalStackLayout>
+                    <local:SelectLogoView FontSize="34" />
                 </Border>
 
                 <Label
-                    Text="© Select ERP | جميع الحقوق محفوظة"
-                    FontSize="11"
-                    TextColor="#929DB0"
+                    Text="إدارة أعمالك أصبحت أسهل"
+                    FontSize="19"
+                    FontAttributes="Bold"
+                    TextColor="White"
+                    HorizontalTextAlignment="Center" />
+
+                <Label
+                    Text="الحسابات  •  المخازن  •  المبيعات"
+                    FontSize="12"
+                    TextColor="#E5EDFF"
                     HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
+        </Grid>
+
+        <!-- ═══════════════ بطاقة الدخول ═══════════════
+             MaximumWidthRequest: على الشاشات العريضة (ويندوز) تبقى بطاقة أنيقة
+             في الوسط بدل ما تتمدد على عرض النافذة كلها.
+             على الموبايل لا تؤثر (العرض أقل من الحد الأقصى). -->
+        <VerticalStackLayout
+            Grid.Row="1"
+            Padding="24,14,24,18"
+            Spacing="14"
+            BackgroundColor="#F3F6FC"
+            MaximumWidthRequest="560"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+
+            <Border
+                Padding="22"
+                BackgroundColor="White"
+                Stroke="#E6EBF4"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24">
+                <Border.Shadow>
+                    <Shadow Brush="#253B65" Offset="0,8" Radius="22" Opacity="0.08" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="14" FlowDirection="RightToLeft">
+
+                    <VerticalStackLayout Spacing="5">
+                        <Label
+                            Text="تسجيل الدخول"
+                            FontSize="25"
+                            FontAttributes="Bold"
+                            TextColor="#192D4A"
+                            HorizontalTextAlignment="Center" />
+
+                        <Label
+                            Text="أدخل بياناتك للمتابعة إلى النظام"
+                            FontSize="13"
+                            TextColor="#7B8799"
+                            HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            Text="اسم المستخدم"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="#34445C" />
+
+                        <Border
+                            Padding="12,2"
+                            BackgroundColor="#FBFCFE"
+                            Stroke="#DCE3ED"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+                            <Entry
+                                x:Name="UsernameEntry"
+                                Placeholder="أدخل اسم المستخدم"
+                                FlowDirection="RightToLeft"
+                                TextColor="#192D4A"
+                                PlaceholderColor="#A0AABD"
+                                ClearButtonVisibility="WhileEditing"
+                                ReturnType="Next"
+                                Completed="OnUsernameCompleted"
+                                HeightRequest="46" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            Text="كلمة المرور"
+                            FontSize="13"
+                            FontAttributes="Bold"
+                            TextColor="#34445C" />
+
+                        <Border
+                            Padding="12,2"
+                            BackgroundColor="#FBFCFE"
+                            Stroke="#DCE3ED"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+                            <Entry
+                                x:Name="PasswordEntry"
+                                Placeholder="أدخل كلمة المرور"
+                                IsPassword="True"
+                                FlowDirection="RightToLeft"
+                                TextColor="#192D4A"
+                                PlaceholderColor="#A0AABD"
+                                ReturnType="Go"
+                                Completed="OnLoginClicked"
+                                HeightRequest="46" />
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- تذكّرني + نسيت كلمة المرور -->
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <CheckBox
+                            x:Name="RememberCheck"
+                            VerticalOptions="Center"
+                            Color="#2458F2" />
+                        <Label
+                            Grid.Column="1"
+                            Text="تذكّرني على هذا الجهاز"
+                            FontSize="13"
+                            TextColor="#34445C"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="2"
+                            Text="نسيت كلمة المرور؟"
+                            FontSize="12"
+                            TextColor="#2458F2"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <Label
+                        x:Name="ErrorLabel"
+                        Text=""
+                        TextColor="#D93636"
+                        FontSize="12"
+                        IsVisible="False" />
+
+                    <Button
+                        x:Name="LoginButton"
+                        Text="تسجيل الدخول"
+                        HeightRequest="54"
+                        CornerRadius="14"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        Clicked="OnLoginClicked">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#2454E9" Offset="0.0" />
+                                <GradientStop Color="#3479ED" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
+                </VerticalStackLayout>
+            </Border>
+
+            <Label
+                Text="© Select ERP | جميع الحقوق محفوظة"
+                FontSize="11"
+                TextColor="#929DB0"
+                HorizontalTextAlignment="Center" />
         </VerticalStackLayout>
-    </ScrollView>
+    </Grid>
 </ContentPage>

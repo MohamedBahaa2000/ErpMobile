@@ -18,10 +18,18 @@ namespace ErpMobile.Services;
 public sealed class ScannerInputListener : IDisposable
 {
     /// <summary>أقل متوسط زمن بين حرفين يُعتبر سلوك ماسح (يدوياً أبطأ من كده).</summary>
-    private const double ScannerIntervalMs = 70;
+    private const double ScannerIntervalMs = 90;
 
     /// <summary>عدد الحدث الأدنى قبل تأكيد أن الإدخال من ماسح.</summary>
-    private const int MinChangesForBurst = 4;
+    private const int MinChangesForBurst = 3;
+
+    /// <summary>
+    /// أقل عدد أحرف تُضاف في «حدث واحد» لتُعتبر إدخال ماسح.
+    /// على ويندوز (WinUI) قد تصل الكتابة دفعةً واحدة فلا تتراكم الفواصل الكافية
+    /// للكشف بالسرعة، فلا يلتقط الباركود من أول مرة. الكتابة اليدوية لا تدخل ٣
+    /// أحرف في حدث واحد، فهذه العلامة مميزة للماسح.
+    /// </summary>
+    private const int BatchedCharsThreshold = 3;
 
     /// <summary>سكون (بالملي ثانية) بعد آخر حرف قبل الإضافة التلقائية.</summary>
     private const int IdleBeforeCommitMs = 300;
@@ -37,6 +45,13 @@ public sealed class ScannerInputListener : IDisposable
     private bool _burstConfirmed;
     private CancellationTokenSource? _commitCts;
     private bool _disposed;
+
+    /// <summary>
+    /// يعيد وضع التركيز في حقل الباركود بعد كل التزام (Commit).
+    /// ضروري على الويندوز: بعد حوار «الصنف موجود مسبقاً» يفقد الحقل التركيز،
+    /// فتصبح المسحات التالية ضائعة ولا تُضاف إلا بعد نقر يدوي.
+    /// </summary>
+    public bool RefocusAfterCommit { get; set; }
 
     public ScannerInputListener(Entry entry, Func<string, Task> onBarcode)
     {
@@ -84,6 +99,15 @@ public sealed class ScannerInputListener : IDisposable
         _lastChangeTicks = now;
 
         string text = _entry.Text?.Trim() ?? string.Empty;
+
+        // كشف الإدخال «دفعةً واحدة» (سلوك ويندوز/WinUI) — يسبق فحص الطول
+        int addedChars = (e.NewTextValue?.Length ?? 0) - (e.OldTextValue?.Length ?? 0);
+        if (addedChars >= BatchedCharsThreshold)
+        {
+            _intervals.Clear();
+            _burstConfirmed = true;
+        }
+
         if (text.Length < MinBarcodeLength)
         {
             CancelPending();
@@ -167,6 +191,12 @@ public sealed class ScannerInputListener : IDisposable
             }
 
             ResetState();
+
+            // يعيد التركيز حتى تبقى جلسة المسح تعملية بلا نقر (خاصة بعد الحوارات)
+            if (RefocusAfterCommit && !_disposed)
+            {
+                _entry.Focus();
+            }
         }
     }
 

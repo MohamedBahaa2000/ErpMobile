@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ErpMobile.Pages.InvoiceDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="تفاصيل الفاتورة"
+    FlowDirection="RightToLeft"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#F1F2F7">
+
+    <ContentPage.Resources>
+        <Style x:Key="CaptionStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#555B72" />
+        </Style>
+        <Style x:Key="CardTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#34394F" />
+        </Style>
+        <Style x:Key="ValueStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextColor" Value="#34394F" />
+            <Setter Property="HorizontalTextAlignment" Value="End" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ══════════ الشريط العلوي ══════════ -->
+        <Grid
+            Padding="16,12"
+            BackgroundColor="#E9EAF0"
+            ColumnDefinitions="Auto,*,Auto"
+            ColumnSpacing="10">
+            <Button
+                x:Name="CloseButton"
+                Text="✕"
+                WidthRequest="44"
+                HeightRequest="38"
+                Padding="0"
+                CornerRadius="8"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                FontAttributes="Bold"
+                Clicked="OnCloseClicked" />
+
+            <VerticalStackLayout
+                Grid.Column="1"
+                Spacing="1"
+                VerticalOptions="Center">
+                <Label
+                    x:Name="TitleLabel"
+                    Text="تفاصيل الفاتورة"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    TextColor="#34445C"
+                    HorizontalTextAlignment="Center" />
+                <Label
+                    x:Name="SubtitleLabel"
+                    Text=""
+                    FontSize="11"
+                    TextColor="#7A8299"
+                    HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <Button
+                Grid.Column="2"
+                x:Name="SaveButton"
+                Text="💾 حفظ التعديلات"
+                HeightRequest="38"
+                Padding="14,4"
+                CornerRadius="8"
+                BackgroundColor="#25A36F"
+                TextColor="White"
+                FontSize="12"
+                FontAttributes="Bold"
+                Clicked="OnSaveClicked" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="12,12,12,24" Spacing="12">
+
+                <!-- شريط حالة الحفظ -->
+                <Border
+                    x:Name="StatusBanner"
+                    Padding="12,9"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    IsVisible="False">
+                    <Label
+                        x:Name="StatusText"
+                        FontSize="12"
+                        FontAttributes="Bold"
+                        TextColor="White"
+                        HorizontalTextAlignment="Center" />
+                </Border>
+
+                <!-- ══════════ بيانات الفاتورة ══════════ -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="بيانات الفاتورة" Style="{StaticResource CardTitleStyle}" />
+
+                        <Grid
+                            ColumnDefinitions="*,*"
+                            ColumnSpacing="10"
+                            RowSpacing="10"
+                            RowDefinitions="Auto,Auto,Auto,Auto">
+
+                            <!-- العميل -->
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="3">
+                                <Label Text="العميل" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry
+                                        x:Name="CustomerEntry"
+                                        FontSize="13"
+                                        TextColor="#34445C"
+                                        HeightRequest="40"
+                                        HorizontalTextAlignment="End" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- التاريخ -->
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="3">
+                                <Label Text="التاريخ" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="6,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <DatePicker
+                                        x:Name="InvoiceDatePicker"
+                                        FontSize="13"
+                                        HeightRequest="40" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- نوع الفاتورة -->
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="3">
+                                <Label Text="نوع الفاتورة" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Picker
+                                        x:Name="InvoiceTypePicker"
+                                        FontSize="13"
+                                        HeightRequest="40"
+                                        TextColor="#34445C" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- قائمة الأسعار -->
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="3">
+                                <Label Text="قائمة الأسعار" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Picker
+                                        x:Name="PriceListPicker"
+                                        FontSize="13"
+                                        HeightRequest="40"
+                                        TextColor="#34445C" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- رقم الفاتورة (للقراءة فقط) -->
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="0" Spacing="3">
+                                <Label Text="رقم الفاتورة" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="#F3F5FA" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry
+                                        x:Name="InvoiceNumberEntry"
+                                        FontSize="13"
+                                        TextColor="#5A6480"
+                                        IsReadOnly="True"
+                                        IsEnabled="False"
+                                        HeightRequest="40"
+                                        HorizontalTextAlignment="End" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- المدفوع -->
+                            <VerticalStackLayout Grid.Row="2" Grid.Column="1" Spacing="3">
+                                <Label Text="المدفوع" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry
+                                        x:Name="PaidEntry"
+                                        Keyboard="Numeric"
+                                        FontSize="13"
+                                        TextColor="#34445C"
+                                        HeightRequest="40"
+                                        TextChanged="OnEditableChanged"
+                                        HorizontalTextAlignment="End" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- الخصم على الفاتورة -->
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="0" Spacing="3">
+                                <Label Text="نسبة الخصم على الفاتورة %" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry
+                                        x:Name="InvoiceDiscountEntry"
+                                        Keyboard="Numeric"
+                                        FontSize="13"
+                                        TextColor="#34445C"
+                                        HeightRequest="40"
+                                        TextChanged="OnEditableChanged"
+                                        HorizontalTextAlignment="End" />
+                                </Border>
+                            </VerticalStackLayout>
+
+                            <!-- الضريبة -->
+                            <VerticalStackLayout Grid.Row="3" Grid.Column="1" Spacing="3">
+                                <Label Text="نسبة الضريبة %" Style="{StaticResource CaptionStyle}" />
+                                <Border Padding="8,0" BackgroundColor="White" Stroke="#D5D4EC" StrokeThickness="1" StrokeShape="RoundRectangle 5">
+                                    <Entry
+                                        x:Name="VatPercentEntry"
+                                        Keyboard="Numeric"
+                                        FontSize="13"
+                                        TextColor="#34445C"
+                                        HeightRequest="40"
+                                        TextChanged="OnEditableChanged"
+                                        HorizontalTextAlignment="End" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════ بنود الفاتورة ══════════ -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="بنود الفاتورة" Style="{StaticResource CardTitleStyle}" />
+                        <Label
+                            Text="عدّل الكمية أو السعر أو نسبة الخصم مباشرة — يُعاد الحساب تلقائياً."
+                            FontSize="11"
+                            TextColor="#7A8299" />
+
+                        <Label
+                            x:Name="EmptyLabel"
+                            Text="لا توجد بنود محفوظة في هذه الفاتورة"
+                            FontSize="13"
+                            TextColor="#8A91A6"
+                            HorizontalTextAlignment="Center"
+                            Padding="10,14"
+                            IsVisible="False" />
+
+                        <VerticalStackLayout x:Name="ItemsContainer" Spacing="8" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════ ملخص الفاتورة ══════════ -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="White"
+                    Stroke="#8582D5"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="ملخص الفاتورة" Style="{StaticResource CardTitleStyle}" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10" RowSpacing="8">
+                            <Label Text="الإجمالي قبل الخصم" FontSize="12" TextColor="#6B7488" />
+                            <Label x:Name="SubtotalLabel" Text="0.00" Style="{StaticResource ValueStyle}" Grid.Column="1" />
+
+                            <Label Grid.Row="1" Text="إجمالي خصم الأصناف" FontSize="12" TextColor="#6B7488" />
+                            <Label x:Name="ItemsDiscountLabel" Text="0.00" Style="{StaticResource ValueStyle}" Grid.Row="1" Grid.Column="1" />
+
+                            <Label Grid.Row="2" Text="خصم الفاتورة" FontSize="12" TextColor="#6B7488" />
+                            <Label x:Name="InvoiceDiscountLabel" Text="0.00" Style="{StaticResource ValueStyle}" Grid.Row="2" Grid.Column="1" />
+
+                            <Label Grid.Row="3" Text="الضريبة" FontSize="12" TextColor="#6B7488" />
+                            <Label x:Name="VatLabel" Text="0.00" Style="{StaticResource ValueStyle}" Grid.Row="3" Grid.Column="1" />
+
+                            <Label Grid.Row="4" Text="الإجمالي" FontSize="13" FontAttributes="Bold" TextColor="#34394F" />
+                            <Label x:Name="GrandTotalLabel" Text="0.00" FontSize="16" FontAttributes="Bold" TextColor="#173B70" HorizontalTextAlignment="End" Grid.Row="4" Grid.Column="1" />
+
+                            <Label Grid.Row="5" Text="المتبقي على العميل" FontSize="13" FontAttributes="Bold" TextColor="#34394F" />
+                            <Label x:Name="RemainingLabel" Text="0.00" FontSize="16" FontAttributes="Bold" TextColor="#C77A11" HorizontalTextAlignment="End" Grid.Row="5" Grid.Column="1" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════ أزرار ══════════ -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Button
+                        Text="حفظ التعديلات"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#25A36F"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveClicked" />
+                    <Button
+                        Grid.Column="1"
+                        Text="حفظ وإغلاق"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#E99A2D"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnSaveAndCloseClicked" />
+                    <Button
+                        Grid.Column="2"
+                        Text="إغلاق"
+                        HeightRequest="46"
+                        CornerRadius="8"
+                        BackgroundColor="#173B70"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        Clicked="OnCloseClicked" />
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

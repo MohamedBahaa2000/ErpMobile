@@ -141,9 +141,13 @@
                     TextColor="#8A91A6"
                     HorizontalTextAlignment="Center"
                     IsVisible="False" />
-                <VerticalStackLayout
+                <!-- FlexLayout: عمود واحد على الموبايل، وأعمدة متعددة على الويندوز -->
+                <FlexLayout
                     x:Name="ListContainer"
-                    Spacing="10" />
+                    Direction="Row"
+                    Wrap="Wrap"
+                    JustifyContent="Start"
+                    AlignItems="Start" />
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

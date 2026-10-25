@@ -31,6 +31,12 @@ public partial class ProductPage : ContentPage
     {
         InitializeComponent();
 
+#if WINDOWS
+        // على الويندوز يُخفى زرار «مسح» بالكاميرا (مسح الكاميرا للهاتف فقط —
+        // شاشة الكاميرا تُسبّب خطأ على ويندوز). لا يؤثر على أندرويد إطلاقاً.
+        ScanBarcodeButton.IsVisible = false;
+#endif
+
         UnitPicker.ItemsSource = new[] { "قطعة", "كرتونة", "كيلوجرام", "لتر" };
         UnitPicker.SelectedIndex = 0;
         UnitPicker.SelectedIndexChanged += (_, _) => UnitCellLabel.Text = Selected(UnitPicker);

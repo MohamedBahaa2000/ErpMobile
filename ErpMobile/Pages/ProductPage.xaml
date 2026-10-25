@@ -90,6 +90,7 @@
                                     </Border>
                                     <Button
                                         Grid.Column="1"
+                                        x:Name="ScanBarcodeButton"
                                         Text="مسح"
                                         WidthRequest="60"
                                         HeightRequest="44"

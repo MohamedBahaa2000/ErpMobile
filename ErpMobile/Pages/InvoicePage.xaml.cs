@@ -73,6 +73,17 @@ public partial class InvoicePage : ContentPage
         // ماسح الباركود USB: يلتقط الباركود تلقائياً من غير أي نقر
         _scannerListener = new ScannerInputListener(InvoiceBarcodeEntry, AddProductByBarcodeAsync);
 
+#if WINDOWS
+        // على الويندوز يُخفى زرار «مسح» بالكاميرا (مسح الكاميرا للهاتف فقط،
+        // وعلى الويندوز يفتح شاشة الكاميرا فتظهر خطأ). الإخفاء هنا لا يؤثر إطلاقاً
+        // على أندرويد لأنه كود تجميع منفصل للمنصة.
+        ScanBarcodeButton.IsVisible = false;
+
+        // يعيد التركيز لحقل الباركود بعد كل التزام حتى لا تضيع المسحات التالية
+        // بعد حوار «الصنف موجود مسبقاً».
+        _scannerListener.RefocusAfterCommit = true;
+#endif
+
         _ready = true;
     }
 
@@ -238,6 +249,199 @@ public partial class InvoicePage : ContentPage
         ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
         ScanStatusLabel.Text = $"{product.Name} × {FormatQuantity(totalQuantity.Value)} — تمت الإضافة";
     }
+
+    // ---------------------------------------------------------------------
+    // البحث عن الصنف بالاسم (تحت حقل الباركود)
+    // ---------------------------------------------------------------------
+
+    private List<Product>? _allProducts;
+    private CancellationTokenSource? _searchCts;
+
+    /// <summary>يجلب كل الأصناف مرة واحدة ويُخزّنها حتى يكون البحث فورياً.</summary>
+    private async Task<List<Product>> GetAllProductsCachedAsync()
+    {
+        if (_allProducts is not null)
+        {
+            return _allProducts;
+        }
+
+        try
+        {
+            _allProducts = await ProductRepository.Instance.GetAllAsync();
+        }
+        catch (Exception)
+        {
+            // انقطاع الخادم — نبحث في القائمة الفارغة بدلاً من تعطيل الصفحة
+            _allProducts = [];
+        }
+
+        return _allProducts;
+    }
+
+    private async void OnItemSearchChanged(object? sender, TextChangedEventArgs e)
+    {
+        // إلغاء البحث السابق (Debounce) حتى لا يُثقل الواجهة بأوامر متتابعة
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+
+        var cts = new CancellationTokenSource();
+        _searchCts = cts;
+
+        try
+        {
+            await Task.Delay(220, cts.Token);
+            await RenderSearchResultsAsync(e.NewTextValue, cts.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            // المستخدم ما زال يكتب — ننتظر حتى يهدأ
+        }
+        catch (Exception)
+        {
+            // لا ندع خطأ البحث يُسقط الصفحة
+        }
+    }
+
+    private async Task RenderSearchResultsAsync(string query, CancellationToken token)
+    {
+        SearchResultsContainer.Children.Clear();
+
+        string term = (query ?? string.Empty).Trim();
+        if (term.Length < 2)
+        {
+            SearchResultsBorder.IsVisible = false;
+            return;
+        }
+
+        List<Product> all = await GetAllProductsCachedAsync();
+        token.ThrowIfCancellationRequested();
+
+        List<Product> matches =
+        [
+            .. all.Where(p =>
+                (!string.IsNullOrEmpty(p.Name) && p.Name.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                (!string.IsNullOrEmpty(p.Barcode) && p.Barcode.Contains(term, StringComparison.OrdinalIgnoreCase)))
+                  .Take(12)
+        ];
+
+        SearchResultsTitle.Text = matches.Count == 0
+            ? $"لا توجد نتائج مطابقة لـ «{term}»"
+            : $"نتائج البحث ({matches.Count}) — اضغط على الصنف لإضافته";
+
+        foreach (Product product in matches)
+        {
+            SearchResultsContainer.Children.Add(BuildSearchResultRow(product));
+        }
+
+        SearchResultsBorder.IsVisible = true;
+    }
+
+    private View BuildSearchResultRow(Product product)
+    {
+        var nameLabel = new Label
+        {
+            Text = product.Name,
+            FontSize = 13,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#192D4A"),
+            LineBreakMode = LineBreakMode.TailTruncation,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        var metaLabel = new Label
+        {
+            Text = $"{product.Barcode}  •  {product.Unit}",
+            FontSize = 11,
+            TextColor = Color.FromArgb("#8A91A6"),
+            LineBreakMode = LineBreakMode.TailTruncation,
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        var priceLabel = new Label
+        {
+            Text = FormatAmount(product.Price),
+            FontSize = 13,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#12A15B"),
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        var addLabel = new Label
+        {
+            Text = "＋ إضافة",
+            FontSize = 11,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Colors.White,
+            BackgroundColor = Color.FromArgb("#25A36F"),
+            Padding = new Thickness(10, 5),
+            VerticalOptions = LayoutOptions.Center
+        };
+
+        var row = new Grid
+        {
+            Padding = new Thickness(10, 6),
+            ColumnDefinitions = new ColumnDefinitionCollection
+            {
+                new(GridLength.Star),
+                new(GridLength.Auto),
+                new(GridLength.Auto)
+            },
+            ColumnSpacing = 10,
+            FlowDirection = FlowDirection.RightToLeft
+        };
+
+        Grid.SetColumn(nameLabel, 0);
+        Grid.SetColumn(priceLabel, 1);
+        Grid.SetColumn(addLabel, 2);
+
+        var info = new VerticalStackLayout { Spacing = 1, Children = { nameLabel, metaLabel } };
+        Grid.SetColumn(info, 0);
+
+        row.Children.Add(info);
+        row.Children.Add(priceLabel);
+        row.Children.Add(addLabel);
+
+        var border = new Border
+        {
+            Padding = 0,
+            BackgroundColor = Colors.White,
+            Stroke = Color.FromArgb("#E6EBF4"),
+            StrokeThickness = 1
+        };
+        border.Content = row;
+
+        var tap = new TapGestureRecognizer();
+        tap.Tapped += async (_, _) => await AddSearchedProductAsync(product);
+        border.GestureRecognizers.Add(tap);
+
+        return border;
+    }
+
+    /// <summary>يضيف الصنف المختار من نتائج البحث ثم يُنظّف مربع البحث.</summary>
+    private async Task AddSearchedProductAsync(Product product)
+    {
+        double? totalQuantity = await AddProductCheckedAsync(product, 1);
+        if (totalQuantity is null)
+        {
+            return; // المستخدم رفض إضافة صنف موجود مسبقاً
+        }
+
+        SearchResultsBorder.IsVisible = false;
+        ItemSearchEntry.Text = string.Empty;
+        InvoiceBarcodeEntry.Text = string.Empty;
+
+        ScanStatusLabel.TextColor = Color.FromArgb("#248A58");
+        ScanStatusLabel.Text = $"{product.Name} × {FormatQuantity(totalQuantity.Value)} — تمت الإضافة";
+
+#if WINDOWS
+        // نُبقي التركيز على الباركود حتى تبقى جلسة المسح USB تعملية
+        InvoiceBarcodeEntry.Focus();
+#endif
+    }
+
+    // ---------------------------------------------------------------------
+    // بنود الفاتورة
+    // ---------------------------------------------------------------------
 
     private void AddLine(Product product, int quantity = 1)
     {

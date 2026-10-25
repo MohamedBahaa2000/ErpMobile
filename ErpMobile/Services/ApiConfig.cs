@@ -10,14 +10,45 @@ public static class ApiConfig
 {
     /// <summary>
     /// تفعيل الاتصال بالخادم.
-    /// false  = وضع محلي (تسجيل دخول admin/123456 بدون خادم) — الوضع الحالي.
-    /// true   = الاتصال بالخادم الحقيقي عبر الـ API بالأسفل.
+    /// false  = وضع محلي (تسجيل دخول admin/123456 بدون خادم).
+    /// true   = الاتصال بمشروع WebApplication1 المحلي عبر الـ API بالأسفل.
     /// </summary>
     public const bool UseApi = true;
 
     // ═══════════════════ الرابط الأساسي ═══════════════════
-    /// <summary>الرابط الأساسي للخادم — غيّره هنا فقط.</summary>
-    public const string BaseUrl = "http://192.168.100.70:5034";
+
+    /// <summary>بورت مشروع API المحلي (WebApplication1).</summary>
+    public const int Port = 5034;
+
+    /// <summary>عنوان الجهاز نفسه — يُستخدم على الويندوز.</summary>
+    public const string LoopbackHost = "127.0.0.1";
+
+    /// <summary>
+    /// عنوان الجهاز على شبكة الواي فاي — يتصل به الهاتف (Android).
+    /// ⚠️ لو تغيّرت شبكة الجهاز (شبكة جديدة / IP جديد) ووقوف الهاتف عن الوصول
+    /// للخادم، غيّر السطر ده بس — وتعرف العنوان الحالي بـ: ipconfig
+    /// (الحالي: 192.168.100.69 — الشبكة 192.168.100.x)
+    /// </summary>
+    public const string LanHost = "192.168.100.69";
+
+    /// <summary>
+    /// الرابط الأساسي للخادم — كل الروابط في التطبيق تُبنى فوقه.
+    ///
+    /// • Windows → 127.0.0.1 لأن الـ API شغّال على نفس الجهاز، فمهما تغيّرت
+    ///   الشبكة أو الـ IP، نافذة الويندوز لا تنكسر أبداً.
+    /// • Android → LanHost لأن الهاتف يتصل عبر شبكة الواي فاي.
+    /// </summary>
+    public static string BaseUrl
+    {
+        get
+        {
+#if WINDOWS
+            return $"http://{LoopbackHost}:{Port}";
+#else
+            return $"http://{LanHost}:{Port}";
+#endif
+        }
+    }
 
     // ═══════════════════ المصادقة (Login) ═══════════════════
     /// <summary>تسجيل الدخول: POST {BaseUrl}{LoginEndpoint}</summary>
