@@ -56,7 +56,7 @@ public static class ToastService
 
         try
         {
-            OverlayGrid host = EnsureOverlayHost(page);
+            Grid host = EnsureOverlayHost(page);
             (string icon, string bg, string fg) = Styles[type];
 
             // بطاقة التنبيه
@@ -121,36 +121,57 @@ public static class ToastService
 
             host.Children.Add(toast);
             Grid.SetRow(toast, 0);
+            Grid.SetColumn(toast, 0);
+
+            // لو الشبكة مقسّمة صفوف/أعمدة، التوست يمتد على الكل
+            if (host.RowDefinitions.Count > 1)
+            {
+                Grid.SetRowSpan(toast, host.RowDefinitions.Count);
+            }
+
+            if (host.ColumnDefinitions.Count > 1)
+            {
+                Grid.SetColumnSpan(toast, host.ColumnDefinitions.Count);
+            }
 
             // ظهور متدرّج
             await Task.WhenAll(
-                toast.FadeTo(1, 220, Easing.CubicOut),
-                toast.ScaleTo(1, 220, Easing.CubicOut),
-                toast.TranslateTo(0, 0, 220, Easing.CubicOut));
+                toast.FadeToAsync(1, 220, Easing.CubicOut),
+                toast.ScaleToAsync(1, 220, Easing.CubicOut),
+                toast.TranslateToAsync(0, 0, 220, Easing.CubicOut));
 
             // بقاء ثم اختفاء
             await Task.Delay(2000);
 
             await Task.WhenAll(
-                toast.FadeTo(0, 260, Easing.CubicIn),
-                toast.TranslateTo(0, -24, 260, Easing.CubicIn));
+                toast.FadeToAsync(0, 260, Easing.CubicIn),
+                toast.TranslateToAsync(0, -24, 260, Easing.CubicIn));
 
             host.Children.Remove(toast);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[ToastService] {ex}");
             // لا ندع فشل التنبيه يمنع عمل التطبيق
         }
     }
 
-    /// <summary>إنشاء حاوية التراكب فوق محتوى الصفحة (مرة واحدة لكل صفحة).</summary>
-    private static OverlayGrid EnsureOverlayHost(ContentPage page)
+    /// <summary>
+    /// إيجاد سطح الإضافة للتنبيه داخل الصفحة.
+    ///
+    /// ⚠ على ويندوز: ممنوع إعادة ترتيب شجرة المحتوى (page.Content = غلاف جديد)
+    ///   لأنها بترمي COMException «No installed components were detected»
+    ///   وبيختفي التنبيه. فنضيف التنبيه فوق نفس الجRID الرئيسي للصفحة.
+    /// </summary>
+    private static Grid EnsureOverlayHost(ContentPage page)
     {
-        if (page.Content is OverlayGrid existing)
+        // (Grid تشمل OverlayGrid لو الشبكة اتعملتلها غلاف قبل كده)
+        if (page.Content is Grid existing)
         {
             return existing;
         }
 
+        // محتوى غير Grid: بنلفّه في غلاف (نادر الحدوث)
         var original = page.Content;
         var host = new OverlayGrid();
 

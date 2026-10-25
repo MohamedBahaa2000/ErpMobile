@@ -3,6 +3,7 @@
     x:Class="ErpMobile.Pages.PartiesPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ErpMobile.Controls"
     x:Name="ThisPage"
     FlowDirection="RightToLeft"
     Shell.NavBarIsVisible="False"
@@ -13,7 +14,7 @@
         <!-- شريط علوي -->
         <Grid
             Padding="16,12"
-            ColumnDefinitions="Auto,*"
+            ColumnDefinitions="Auto,*,Auto"
             ColumnSpacing="10"
             BackgroundColor="#173B70">
             <Button
@@ -34,6 +35,18 @@
                 FontAttributes="Bold"
                 TextColor="White"
                 VerticalOptions="Center" />
+            <Button
+                Grid.Column="2"
+                Text="⟳"
+                WidthRequest="42"
+                HeightRequest="36"
+                Padding="0"
+                CornerRadius="18"
+                FontSize="19"
+                FontAttributes="Bold"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                Clicked="OnReloadClicked" />
         </Grid>
 
         <!-- بحث + إضافة -->
@@ -86,5 +99,8 @@
                     AlignItems="Start" />
             </VerticalStackLayout>
         </ScrollView>
+
+        <!-- حمّلة الريلود — تغطي الصفحة كلها أثناء التحديث من الخادم -->
+        <controls:ReloadOverlay x:Name="ReloadOverlay" Grid.RowSpan="3" />
     </Grid>
 </ContentPage>

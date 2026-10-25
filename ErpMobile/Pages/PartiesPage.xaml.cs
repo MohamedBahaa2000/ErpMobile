@@ -233,4 +233,14 @@ public partial class PartiesPage : ContentPage
     {
         await Shell.Current.GoToAsync("..");
     }
+
+    /// <summary>
+    /// ريلود قائمة العملاء/الموردين من الخادم بدون الخروج من التطبيق —
+    /// بيعرض «حمّلة الريلود» (الحلزون المزدوج) لحد ما تيجي البيانات.
+    /// </summary>
+    private async void OnReloadClicked(object? sender, EventArgs e) =>
+        await ReloadOverlay.RunAsync(
+            LoadAsync,
+            $"تحديث {TitleLabel.Text}",
+            "جلب أحدث البيانات من الخادم…");
 }

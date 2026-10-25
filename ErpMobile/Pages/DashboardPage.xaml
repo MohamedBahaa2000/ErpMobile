@@ -4,13 +4,16 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:ErpMobile.Pages"
+    xmlns:controls="clr-namespace:ErpMobile.Controls"
     Title="لوحة التحكم"
     FlowDirection="RightToLeft"
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F4F7FC">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16,20" Spacing="20">
+    <Grid>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="16,20" Spacing="20">
 
             <!-- ================= شريط حالة الاتصال بالخادم ================= -->
             <VerticalStackLayout x:Name="StatusBannerContainer" Spacing="0" />
@@ -31,7 +34,7 @@
                     <Shadow Brush="#1B2E6B" Offset="0,8" Radius="18" Opacity="0.28" />
                 </Border.Shadow>
 
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
 
                     <!-- أيقونة المستخدم (يمين في RTL) -->
                     <Border
@@ -71,9 +74,23 @@
                             TextColor="#BFD2FF" />
                     </VerticalStackLayout>
 
+                    <!-- زر تحديث البيانات (ريلود) -->
+                    <Button
+                        Grid.Column="2"
+                        Text="⟳"
+                        WidthRequest="46"
+                        HeightRequest="46"
+                        Padding="0"
+                        CornerRadius="23"
+                        FontSize="21"
+                        FontAttributes="Bold"
+                        BackgroundColor="#33FFFFFF"
+                        TextColor="White"
+                        Clicked="OnReloadClicked" />
+
                     <!-- زر تسجيل الخروج (يسار في RTL) -->
                     <Border
-                        Grid.Column="2"
+                        Grid.Column="3"
                         Padding="10"
                         BackgroundColor="#33FFFFFF"
                         StrokeThickness="0"
@@ -400,5 +417,9 @@
             </VerticalStackLayout>
 
         </VerticalStackLayout>
-    </ScrollView>
+        </ScrollView>
+
+        <!-- حمّلة الريلود — تغطي الصفحة كلها أثناء التحديث من الخادم -->
+        <controls:ReloadOverlay x:Name="ReloadOverlay" />
+    </Grid>
 </ContentPage>

@@ -251,4 +251,14 @@ public partial class InvoicesListPage : ContentPage
 
     private async void OnCloseClicked(object? sender, EventArgs e) =>
         await Shell.Current.GoToAsync("..");
+
+    /// <summary>
+    /// ريلود قائمة الفواتير من الخادم بدون الخروج من التطبيق —
+    /// بيعرض «حمّلة الريلود» (الحلزون المزدوج) لحد ما تيجي البيانات.
+    /// </summary>
+    private async void OnReloadClicked(object? sender, EventArgs e) =>
+        await ReloadOverlay.RunAsync(
+            LoadAsync,
+            "تحديث قائمة الفواتير",
+            "جلب أحدث الفواتير من الخادم…");
 }

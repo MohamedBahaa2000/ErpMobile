@@ -3,6 +3,7 @@
     x:Class="ErpMobile.Pages.InvoicesListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ErpMobile.Controls"
     FlowDirection="RightToLeft"
     Shell.NavBarIsVisible="False"
     BackgroundColor="#F4F7FC">
@@ -12,7 +13,7 @@
         <!-- الشريط العلوي -->
         <Grid
             Padding="16,12"
-            ColumnDefinitions="Auto,*,Auto"
+            ColumnDefinitions="Auto,*,Auto,Auto"
             ColumnSpacing="10"
             BackgroundColor="#173B70">
             <Button
@@ -35,6 +36,18 @@
                 HorizontalTextAlignment="Center" />
             <Button
                 Grid.Column="2"
+                Text="⟳"
+                WidthRequest="42"
+                HeightRequest="38"
+                Padding="0"
+                CornerRadius="19"
+                FontSize="19"
+                FontAttributes="Bold"
+                BackgroundColor="#FFFFFF"
+                TextColor="#173B70"
+                Clicked="OnReloadClicked" />
+            <Button
+                Grid.Column="3"
                 Text="＋ جديدة"
                 HeightRequest="38"
                 Padding="14,4"
@@ -150,5 +163,8 @@
                     AlignItems="Start" />
             </VerticalStackLayout>
         </ScrollView>
+
+        <!-- حمّلة الريلود — تغطي الصفحة كلها أثناء التحديث من الخادم -->
+        <controls:ReloadOverlay x:Name="ReloadOverlay" Grid.RowSpan="5" />
     </Grid>
 </ContentPage>

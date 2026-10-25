@@ -286,4 +286,14 @@ public partial class ProductsListPage : ContentPage
 
     private async void OnCloseClicked(object? sender, EventArgs e) =>
         await Shell.Current.GoToAsync("..");
+
+    /// <summary>
+    /// ريلود قائمة الأصناف من الخادم بدون الخروج من التطبيق —
+    /// بيعرض «حمّلة الريلود» (الحلزون المزدوج) لحد ما تيجي البيانات.
+    /// </summary>
+    private async void OnReloadClicked(object? sender, EventArgs e) =>
+        await ReloadOverlay.RunAsync(
+            LoadAsync,
+            "تحديث قائمة الأصناف",
+            "جلب أحدث قائمة الأصناف من الخادم…");
 }

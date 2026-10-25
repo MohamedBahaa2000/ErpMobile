@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="ErpMobile.Controls.ReloadOverlay"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!--
+        ═══ حمّالة الريلود (Reload Overlay) ═══
+        طبقة تغطي الصفحة أثناء تحديث البيانات من الخادم:
+        • خلفية متدرّجة شفّافة (الصفحة تفضل باينة وراها)
+        • بطاقة بيضاء مدوّرة فيها «حلزون مزدوج متقابل الدوران»
+        • ثلاث نقاط ترتد أسفل النص
+        تستخدم في: لوحة التحكم / الأصناف / الفواتير / العملاء
+    -->
+    <Grid x:Name="Root" IsVisible="False" Padding="24">
+
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#E60A1230" Offset="0.0" />
+                <GradientStop Color="#E6133066" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Border
+            x:Name="Card"
+            Padding="28,26"
+            MaximumWidthRequest="400"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 26"
+            HorizontalOptions="Center"
+            VerticalOptions="Center">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#FFFFFF" Offset="0.0" />
+                    <GradientStop Color="#F5F8FE" Offset="1.0" />
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border.Shadow>
+                <Shadow Brush="#0A1230" Offset="0,14" Radius="34" Opacity="0.35" />
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="16" HorizontalOptions="Center">
+
+                <!-- ═══ الحلزون المزدوج ═══ -->
+                <Grid
+                    WidthRequest="108"
+                    HeightRequest="108"
+                    HorizontalOptions="Center">
+
+                    <!-- الحلقة الخارجية: دوران باتجاه -->
+                    <Ellipse
+                        x:Name="OuterRing"
+                        WidthRequest="104"
+                        HeightRequest="104"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        InputTransparent="True"
+                        Stroke="#173B70"
+                        StrokeThickness="7"
+                        StrokeLineCap="Round"
+                        StrokeDashArray="22 14" />
+
+                    <!-- الحلقة الداخلية: دوران في الاتجاه المعاكس -->
+                    <Ellipse
+                        x:Name="InnerRing"
+                        WidthRequest="68"
+                        HeightRequest="68"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        InputTransparent="True"
+                        Stroke="#7B74D6"
+                        StrokeThickness="6"
+                        StrokeLineCap="Round"
+                        StrokeDashArray="14 16" />
+
+                    <!-- رمز التحديث في المنتصف (ثابت) -->
+                    <Label
+                        x:Name="CenterGlyph"
+                        Text="⟳"
+                        FontSize="30"
+                        TextColor="#6B62C7"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+
+                    <!-- علامة النجاح: تظهر بدل الحلزون لما التحديث يخلص بنجاح -->
+                    <Label
+                        x:Name="SuccessIcon"
+                        Text="✓"
+                        FontSize="52"
+                        FontAttributes="Bold"
+                        TextColor="#17A45C"
+                        IsVisible="False"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center" />
+                </Grid>
+
+                <!-- ═══ النصوص ═══ -->
+                <Label
+                    x:Name="TitleLabel"
+                    Text="جارٍ تحديث البيانات"
+                    FontSize="17"
+                    FontAttributes="Bold"
+                    TextColor="#173B70"
+                    HorizontalTextAlignment="Center" />
+
+                <Label
+                    x:Name="SubtitleLabel"
+                    Text="جلب أحدث الأرقام من الخادم… لحظات من فضلك"
+                    FontSize="12"
+                    TextColor="#7A8299"
+                    HorizontalTextAlignment="Center" />
+
+                <!-- ═══ ثلاث نقاط ترتد ═══ -->
+                <HorizontalStackLayout
+                    x:Name="DotsLayout"
+                    Spacing="9"
+                    HorizontalOptions="Center">
+                    <Label x:Name="Dot1" Text="●" FontSize="13" TextColor="#173B70" />
+                    <Label x:Name="Dot2" Text="●" FontSize="13" TextColor="#4C63C6" />
+                    <Label x:Name="Dot3" Text="●" FontSize="13" TextColor="#7B74D6" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentView>

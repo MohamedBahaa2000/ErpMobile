@@ -62,6 +62,16 @@ public partial class DashboardPage : ContentPage
         await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
     }
 
+    /// <summary>
+    /// ريلود اللوحة من الخادم بدون الخروج من التطبيق —
+    /// بيعرض «حمّلة الريلود» (الحلزون المزدوج) لحد ما تيجي البيانات.
+    /// </summary>
+    private async void OnReloadClicked(object? sender, EventArgs e) =>
+        await ReloadOverlay.RunAsync(
+            LoadDataAsync,
+            "تحديث لوحة التحكم",
+            "جلب أحدث الفواتير والأصناف والعملاء من الخادم…");
+
     private async Task LoadDataAsync()
     {
         try
