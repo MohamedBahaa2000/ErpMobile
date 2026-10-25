@@ -339,45 +339,23 @@
                             FontSize="11"
                             TextColor="#7A8299" />
 
-                        <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Always">
-                            <Border
-                                WidthRequest="977"
-                                BackgroundColor="White"
-                                Stroke="#8582D5"
-                                StrokeThickness="1"
-                                StrokeShape="RoundRectangle 6">
-                                <VerticalStackLayout Spacing="0">
-                                    <Grid
-                                        Padding="6"
-                                        ColumnDefinitions="40,95,135,70,65,80,90,65,85,85,110,45"
-                                        BackgroundColor="#E9E9F0">
-                                        <Label Grid.Column="0" Text="م" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="1" Text="كود الصنف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="2" Text="اسم الصنف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="3" Text="الوحدة" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="4" Text="الكمية" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="5" Text="السعر" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="6" Text="اجمالي الصافي" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="7" Text="خصم %" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="8" Text="مبلغ الخصم" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="9" Text="اجمالي" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="10" Text="البيان" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                        <Label Grid.Column="11" Text="حذف" FontSize="11" FontAttributes="Bold" TextColor="#48546B" HorizontalTextAlignment="Center" VerticalOptions="Center" />
-                                    </Grid>
-
-                                    <Label
-                                        x:Name="EmptyItemsLabel"
-                                        Text="امسح الباركود لإضافة صنف للفاتورة"
-                                        Padding="12"
-                                        FontSize="12"
-                                        TextColor="#8995A7"
-                                        HorizontalTextAlignment="Center" />
-                                    <VerticalStackLayout
-                                        x:Name="InvoiceItemsContainer"
-                                        Spacing="0" />
-                                </VerticalStackLayout>
-                            </Border>
-                        </ScrollView>
+                        <!--
+                            ═══ بنود الفاتورة ═══
+                            بطاقات كاملة العرض بدل الجدول الأفقي بعرض 977:
+                            كل صنف = بطاقة مدوّرة بإطار بنفسجي (نفس شكل لوحة
+                            «الخصومات والضرائب») → لا تمرير أفقي على الموبايل،
+                            وتظهر مرتّبة وأنيقة على شاشة الويندوز العريضة.
+                        -->
+                        <Label
+                            x:Name="EmptyItemsLabel"
+                            Text="امسح الباركود لإضافة صنف للفاتورة"
+                            Padding="12"
+                            FontSize="12"
+                            TextColor="#8995A7"
+                            HorizontalTextAlignment="Center" />
+                        <VerticalStackLayout
+                            x:Name="InvoiceItemsContainer"
+                            Spacing="8" />
                     </VerticalStackLayout>
                 </Border>
 

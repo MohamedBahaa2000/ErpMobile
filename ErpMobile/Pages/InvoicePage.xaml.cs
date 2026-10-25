@@ -6,7 +6,6 @@ namespace ErpMobile.Pages;
 
 public partial class InvoicePage : ContentPage
 {
-    private static readonly double[] ItemColumnWidths = [40, 95, 135, 70, 65, 80, 90, 65, 85, 85, 110, 45];
     private static readonly double[] PaymentColumnWidths = [40, 110, 150, 95, 115, 170, 45];
 
     private readonly List<InvoiceLine> _lines = [];
@@ -447,54 +446,202 @@ public partial class InvoicePage : ContentPage
     {
         var item = new InvoiceLine { Product = product };
 
-        var row = CreateRow(ItemColumnWidths);
+        // ────────── الصف ١: الترويسة ──────────
+        // رقم البند داخل «شارة» مدوّرة
+        var numberBadge = MakeCardBadge((_lines.Count + 1).ToString(CultureInfo.InvariantCulture));
+        item.LineNumberLabel = numberBadge;
 
-        item.LineNumberLabel = MakeCell((_lines.Count + 1).ToString(CultureInfo.InvariantCulture));
-        Label codeLabel = MakeCell(product.Barcode);
-        Label nameLabel = MakeCell(product.Name);
-        Label unitLabel = MakeCell(product.Unit);
-        item.QuantityEntry = MakeCellEntry(
+        var nameLabel = new Label
+        {
+            Text = product.Name,
+            FontSize = 13,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#1B2B4B"),
+            VerticalTextAlignment = TextAlignment.Center,
+            LineBreakMode = LineBreakMode.TailTruncation
+        };
+        var metaLabel = new Label
+        {
+            Text = $"{product.Barcode} • {product.Unit}",
+            FontSize = 10,
+            TextColor = Color.FromArgb("#8A91A6"),
+            LineBreakMode = LineBreakMode.TailTruncation
+        };
+        var nameStack = new VerticalStackLayout { Spacing = 1 };
+        nameStack.Children.Add(nameLabel);
+        nameStack.Children.Add(metaLabel);
+
+        item.NetLabel = MakeCardValue(FormatAmount(product.Price), 15, "#173B70");
+
+        var header = MakeCardGrid();
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.Children.Add(numberBadge);
+        header.Children.Add(nameStack);
+        header.Children.Add(item.NetLabel);
+        Grid.SetColumn(nameStack, 1);
+        Grid.SetColumn(item.NetLabel, 2);
+
+        // ────────── الصف ٢: الحقول القابلة للتعديل ──────────
+        item.QuantityEntry = MakeCardEntry(
             quantity.ToString(CultureInfo.InvariantCulture), Keyboard.Numeric, OnInvoiceInputChanged);
-        item.PriceEntry = MakeCellEntry(FormatAmount(product.Price), Keyboard.Numeric, OnInvoiceInputChanged);
-        item.GrossLabel = MakeCell(FormatAmount(product.Price));
-        item.DiscountPercentEntry = MakeCellEntry("0", Keyboard.Numeric, OnInvoiceInputChanged);
-        item.DiscountAmountLabel = MakeCell("0.00");
-        item.NetLabel = MakeCell(FormatAmount(product.Price));
-        item.NoteEntry = MakeCellEntry(string.Empty, Keyboard.Default, null);
+        item.PriceEntry = MakeCardEntry(FormatAmount(product.Price), Keyboard.Numeric, OnInvoiceInputChanged);
+        item.DiscountPercentEntry = MakeCardEntry("0", Keyboard.Numeric, OnInvoiceInputChanged);
+        item.DiscountAmountLabel = MakeCardValue("0.00", 12, "#D9534F");
 
-        var deleteButton = CreateDeleteButton();
-
-        View[] views =
+        View[] fieldControls =
         [
-            item.LineNumberLabel,
-            codeLabel,
-            nameLabel,
-            unitLabel,
             item.QuantityEntry,
             item.PriceEntry,
-            item.GrossLabel,
             item.DiscountPercentEntry,
-            item.DiscountAmountLabel,
-            item.NetLabel,
-            item.NoteEntry,
-            deleteButton
+            item.DiscountAmountLabel
         ];
-        AddColumns(row, views);
+        string[] fieldCaptions = ["الكمية", "السعر", "خصم %", "مبلغ الخصم"];
+
+        var fields = MakeCardGrid();
+        for (int column = 0; column < fieldControls.Length; column++)
+        {
+            fields.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+
+            var cell = new VerticalStackLayout { Spacing = 3 };
+            cell.Children.Add(new Label
+            {
+                Text = fieldCaptions[column],
+                FontSize = 10,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#6B7488"),
+                HorizontalTextAlignment = TextAlignment.Center
+            });
+            cell.Children.Add(WrapInFieldBox(fieldControls[column]));
+
+            Grid.SetColumn(cell, column);
+            fields.Children.Add(cell);
+        }
+
+        // ────────── الصف ٣: الإجمالي + البيان + حذف ──────────
+        item.GrossLabel = MakeCardValue(FormatAmount(product.Price), 13, "#1B2B4B");
+        item.NoteEntry = MakeCardEntry(string.Empty, Keyboard.Default, null);
+        var deleteButton = CreateDeleteButton();
+
+        var grossStack = new HorizontalStackLayout { Spacing = 5, VerticalOptions = LayoutOptions.Center };
+        grossStack.Children.Add(new Label
+        {
+            Text = "قبل الخصم:",
+            FontSize = 10,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Color.FromArgb("#6B7488"),
+            VerticalTextAlignment = TextAlignment.Center
+        });
+        grossStack.Children.Add(item.GrossLabel);
+
+        var noteBox = WrapInFieldBox(item.NoteEntry);
+
+        var footer = MakeCardGrid();
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        footer.Children.Add(grossStack);
+        footer.Children.Add(noteBox);
+        footer.Children.Add(deleteButton);
+        Grid.SetColumn(noteBox, 1);
+        Grid.SetColumn(deleteButton, 2);
+
+        // ────────── تركيب البطاقة ──────────
+        var content = new VerticalStackLayout { Spacing = 8 };
+        content.Children.Add(header);
+        content.Children.Add(fields);
+        content.Children.Add(footer);
+
+        var card = new Border
+        {
+            Padding = new Thickness(12, 10),
+            BackgroundColor = Colors.White,
+            Stroke = Color.FromArgb("#8582D5"),
+            StrokeThickness = 1,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 10 },
+            Content = content
+        };
 
         deleteButton.Clicked += (_, _) =>
         {
-            InvoiceItemsContainer.Children.Remove(row);
+            InvoiceItemsContainer.Children.Remove(card);
             _lines.Remove(item);
             RenumberLines();
             EmptyItemsLabel.IsVisible = _lines.Count == 0;
             Recalculate();
         };
 
-        InvoiceItemsContainer.Children.Add(row);
+        InvoiceItemsContainer.Children.Add(card);
         _lines.Add(item);
         EmptyItemsLabel.IsVisible = false;
         Recalculate();
     }
+
+    // ---------------------------------------------------------------------
+    // مكوّنات بطاقة الصنف
+    // ---------------------------------------------------------------------
+
+    private static Grid MakeCardGrid() => new()
+    {
+        ColumnSpacing = 8,
+        FlowDirection = FlowDirection.RightToLeft
+    };
+
+    private static Label MakeCardBadge(string text) => new()
+    {
+        Text = text,
+        FontSize = 11,
+        FontAttributes = FontAttributes.Bold,
+        TextColor = Colors.White,
+        BackgroundColor = Color.FromArgb("#7B74D6"),
+        WidthRequest = 30,
+        HeightRequest = 24,
+        HorizontalTextAlignment = TextAlignment.Center,
+        VerticalTextAlignment = TextAlignment.Center
+    };
+
+    private static Label MakeCardValue(string text, double fontSize, string color) => new()
+    {
+        Text = text,
+        FontSize = fontSize,
+        FontAttributes = FontAttributes.Bold,
+        TextColor = Color.FromArgb(color),
+        HorizontalTextAlignment = TextAlignment.Center,
+        VerticalTextAlignment = TextAlignment.Center
+    };
+
+    private static Entry MakeCardEntry(string text, Keyboard keyboard, EventHandler<TextChangedEventArgs>? handler)
+    {
+        var entry = new Entry
+        {
+            Text = text,
+            FontSize = 12,
+            Keyboard = keyboard,
+            BackgroundColor = Colors.Transparent,
+            TextColor = Color.FromArgb("#34445C"),
+            HeightRequest = 34,
+            HorizontalTextAlignment = TextAlignment.Center
+        };
+
+        if (handler is not null)
+        {
+            entry.TextChanged += handler;
+        }
+
+        return entry;
+    }
+
+    /// <summary>يضع الحقل داخل إطار مدوّر — بنفس شكل حقول «الخصومات والضرائب».</summary>
+    private static Border WrapInFieldBox(View control) => new()
+    {
+        Padding = new Thickness(6, 0),
+        BackgroundColor = Color.FromArgb("#FBFCFE"),
+        Stroke = Color.FromArgb("#D5D4EC"),
+        StrokeThickness = 1,
+        StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 6 },
+        Content = control
+    };
 
     /// <summary>
     /// يضيف الصنف للفاتورة؛ ولو الباركود موجود مسبقاً <b>يسأل المستخدم</b>
